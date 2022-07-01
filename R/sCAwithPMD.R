@@ -1,38 +1,24 @@
-#' Group sparse Correspondence Analysis
+#' Sparse Correspondence Analysis based on the "projected Penalized Matrix Decomposition"
 #'
-#' @param DATA the contingency table
-#' @param k the number of dimensions
-#' @param tol
-#' @param doublecentering
-#' @param init
-#' @param initLeft
-#' @param initRight
-#' @param seed
-#' @param rdsLeft
-#' @param rdsRight
-#' @param orthogonality
-#' @param OrthSpaceLeft
-#' @param OrthSpaceRight
-#' @param projPriority
-#' @param projPriorityLeft
-#' @param projPriorityRight
-#' @param itermaxALS
-#' @param itermaxPOCS
-#' @param epsALS
-#' @param epsPOCS
+#' @param DATA the I times J contingency table
+#' @param dimensions, integer, the number of dimensions to return (default to 2)
+#' @param doublecentering, logical: should the data be double-centered (default to TRUE)
+#' @param s1, vector of size 'dimensions" containing the left side regularization parameters, the coefficients in this vector should belong to the interval [1, sqrt(I)], (default to rep(1, dimensions))
+#' @param s2, vector of size 'dimensions" containing the left side regularization parameters, the coefficients in this vector should belong to the interval [1, sqrt(J)], (default to rep(1, dimensions))
 #'
-#' @return
+#' @return An object containing all the necessary outputs for sparse CA
 #' @export
 #'
 #' @examples
-#' sCAwithPMD(HairEyeColor[,,1],components = 3L, rdsLeft = rep(0.5 * sqrt(dim(HairEyeColor)[1]), 3), rdsRight = rep(0.5 * sqrt(dim(HairEyeColor)[2]), 3))
-#'    
+#' sCAwithPMD(HairEyeColor[,,1],dimensions = 3L, s1 = rep(0.5 * sqrt(dim(HairEyeColor)[1]), 3), rdsRight = rep(0.5 * sqrt(dim(HairEyeColor)[2]), 3))
+#'
 sCAwithPMD <- function(
-  DATA, components = 2L,
+  DATA,
+  dimensions = 2L,
   doublecentering = TRUE,
-  rdsLeft = rep(1, components),
-  rdsRight = rep(1, components)) {
-  
+  s1 = rep(1, dimensions),
+  s2 = rep(1, dimensions)) {
+
   # mRP <- ExPosition::makeRowProfiles(DATA, weights = NULL, masses = NULL, hellinger = FALSE)
   N <- sum(DATA)
   X <- 1/N * DATA
@@ -46,11 +32,11 @@ sCAwithPMD <- function(
     X,
     LW = LW,
     RW = RW,
-    k = components,
-    rdsLeft = rdsLeft,
+    k = dimensions,
+    rdsLeft = s1,
     rdsRight = rdsRight
   )
-  
+
   res <- gpmd.out(res.gpmd, X = X, LW = LW, RW = RW)
   res$X.preproc <- X
 
@@ -58,15 +44,17 @@ sCAwithPMD <- function(
 
 }
 
+#' @export
+#' @keywords internal
 gpmd.out <- function(
     res,
     X,
     LW,
     RW) {
-  
-  if (!is.vector(LW)) stop("Weights should be vectors, damn it!")
-  if (!is.vector(RW)) stop("Weights should be vectors, damn it!")
-  
+
+  if (!is.vector(LW)) stop("Weights should be vectors!")
+  if (!is.vector(RW)) stop("Weights should be vectors!")
+
   out <- list()
   # SVD
   out$svd$d <- res$d
@@ -94,10 +82,10 @@ gpmd.out <- function(
   out$sparsity$rdsLeft <- res$rdsLeft
   out$sparsity$rdsRight <- res$rdsRight
   out$sparsity$SI <- res$SI
-  
+
   rownames(out$fi) <- rownames(out$ci) <- rownames(out$gsvd$p) <- rownames(out$svd$u) <- rownames(X)
   rownames(out$fj) <- rownames(out$cj) <- rownames(out$gsvd$q) <- rownames(out$svd$v) <- colnames(X)
-  
+
   colnames(out$fi) <- colnames(out$fj) <- colnames(out$ci) <- colnames(out$cj) <- colnames(out$gsvd$p) <- colnames(out$gsvd$q) <- colnames(out$svd$u) <- colnames(out$svd$v) <- paste0("Component ", seq_along(out$svd$d))
   return(out)
 }

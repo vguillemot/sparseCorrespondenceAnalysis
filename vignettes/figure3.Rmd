@@ -1,0 +1,28 @@
+---
+title: "Figure 3: "
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{figure3}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(sparseCorrespondenceAnalysis)
+library(pheatmap)
+data("death.2019")
+```
+
+```{r figure, fig.height = 7, fig.width = 7}
+
+```
+
+
+

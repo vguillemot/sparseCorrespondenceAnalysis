@@ -1,11 +1,10 @@
 #' @title Sparse Generalized Singular Value Decomposition
-#' @description Constrained SVD of a matrix (wrapper of c++ functions).
+#' @description Constrained SVD of a matrix (wrapper of PMA:::PMD).
 #'
 #' @param X a (data) matrix;
 #' @param LW PARAM_DESCRIPTION
 #' @param RW PARAM_DESCRIPTION
 #' @param k the desired rank of the singular decomposition, Default: 0
-#' @param tol PARAM_DESCRIPTION, Default: .Machine$double.eps
 #' @param rdsLeft The radius (>0) of the
 #' $L_1$ ball for each left vector, Default: rep(1, k)
 #' @param rdsRight The radius (>0) of the $L_1$ balls for each right vector, Default: rep(1, k)
@@ -35,7 +34,7 @@ GPMD <- function(
   if ( !is.matrix(X) ){
     X <- as.matrix(X)
   }
-  
+
   # a few things about LW for stopping conditions
   LW_is_missing <- missing(LW)
 
@@ -162,7 +161,7 @@ GPMD <- function(
   }
 
   res <- pPMD(Data = X, k = k,
-              rdsLeft = rdsLeft, 
+              rdsLeft = rdsLeft,
               rdsRight = rdsRight,
               tol.si = tol.si)
 
@@ -230,7 +229,7 @@ GPMD <- function(
   res$rdsRight <- rdsRight
   res.SI <- sparseIndex(res.ppmd = res, singularValues = svd(X, 0, 0)$d, tol = tol.si)
   res$SI <- res.SI
-  
+
   # class(res) <- c("sGSVD", "sSVD", "list")
   return(res)
 
@@ -239,20 +238,9 @@ GPMD <- function(
 
 
 #' @export
-#'
-#' @title \code{is_diagonal_matrix}: test if a matrix is a diagonal matrix.
-#'
-#' @description \code{is_diagonal_matrix} takes a matrix and tests if it is a diagonal matrix.
-#'
-#' @param x A matrix to test.
-#' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
-#'
-#' @return A boolean. TRUE if the matrix is a diagonal matrix, FALSE if the matrix is not.
-
-
-## enhanced version of this: https://stackoverflow.com/questions/11057639/identifying-if-only-the-diagonal-is-non-zero
+#' @keywords internal
 is_diagonal_matrix <- function(x,tol=.Machine$double.eps){
-  
+
   if( length(dim(x)) != 2 ){
     stop("is_diagonal_matrix: x is not a matrix.")
   }
@@ -265,26 +253,16 @@ is_diagonal_matrix <- function(x,tol=.Machine$double.eps){
   if(!is.matrix(x)){
     x <- as.matrix(x)
   }
-  
+
   x[ x^2 < tol ] <- 0
   return(all(x[lower.tri(x)] == 0, x[upper.tri(x)] == 0))
 }
 
 
 #' @export
-#'
-#' @title \code{is_empty_matrix}: test if a matrix contains all 0s.
-#'
-#' @description \code{is_empty_matrix} takes a matrix and tests if it contains all 0s.
-#'
-#' @param x A matrix to test.
-#' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
-#'
-#' @return A boolean. TRUE if the matrix contains all 0s, FALSE if the matrix does not.
-
-
+#' @keywords internal
 is_empty_matrix <- function(x,tol=.Machine$double.eps){
-  
+
   if( length(dim(x)) != 2 ){
     stop("is_empty_matrix: x is not a matrix.")
   }
@@ -294,52 +272,33 @@ is_empty_matrix <- function(x,tol=.Machine$double.eps){
   if(!is.matrix(x)){
     x <- as.matrix(x)
   }
-  
+
   x[abs(x) < tol] <- 0
-  
+
   if(sum(abs(x))==0){
     return(TRUE)
   }else{
     return(FALSE)
   }
-  
+
 }
 
 #' @export
-#'
-#' @title \code{are_all_values_positive}: check for strictly positive values in object
-#'
-#' @description \code{are_all_values_positive} test presumably a vector, but any numeric object, for strictly positive values
-#'
-#' @param x A numeric object
-#'
-#' @return A boolean. TRUE if all values are positive, FALSE otherwise
-
+#' @keywords internal
 are_all_values_positive <- function(x){
-  
+
   !(any(is.null(x)) |
       any(is.infinite(x)) |
       any(is.na(x)) |
       any(is.nan(x)) |
       any(x < 0))
-  
+
 }
 
 #' @export
-#'
-#' @title \code{sqrt_psd_matrix}: square root of a positive semi-definite matrix
-#'
-#' @description \code{sqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
-#'
-#' @details Note that \code{sqrt_psd_matrix} uses \code{tolerance_eigen(...,tol=1e-13)} with the tolerance fixed at 1e-13. This enforces an "acceptably zero" value for eigenvalues, and also stops the computation if any eigenvalues are not zero or positive (within the tolerance parameter). If the computation is halted, that means the matrix was not positive semi-definite.
-#'
-#' @param x A square matrix (presumably positive semi-definite)
-#'
-#' @return A matrix. The square root of the \code{x} matrix
-#' @seealso \code{\link{tolerance_eigen}}
-
+#' @keywords internal
 sqrt_psd_matrix <- function(x){
-  
+
   ## checks: just that they are a matrix & square & numeric
   if( length(dim(x)) != 2 ){
     stop("sqrt_psd_matrix: x is not a matrix.")
@@ -353,31 +312,20 @@ sqrt_psd_matrix <- function(x){
   if(!is.matrix(x)){
     x <- as.matrix(x)
   }
-  
+
   ## tolerance_eigen
   res <- tolerance_eigen(x, tol = 1e-13)
-  
+
   ## rebuild
   return(t(t(res$vectors) * sqrt(res$values) ) %*% t(res$vectors))
-  
+
 }
 
 
 #' @export
-#'
-#' @title \code{invsqrt_psd_matrix}: inverse square root of a positive semi-definite matrix
-#'
-#' @description \code{invsqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the inverse square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
-#'
-#' @details Note that \code{invsqrt_psd_matrix} uses \code{tolerance_eigen(...,tol=1e-13)} with the tolerance fixed at 1e-13. This enforces an "acceptably zero" value for eigenvalues, and also stops the computation if any eigenvalues are not zero or positive (within the tolerance parameter). If the computation is halted, that means the matrix was not positive semi-definite.
-#'
-#' @param x A square matrix (presumably positive semi-definite)
-#'
-#' @return A matrix. The inverse square root of the \code{x} matrix
-#' @seealso \code{\link{tolerance_eigen}}
-
+#' @keywords internal
 invsqrt_psd_matrix <- function(x){
-  
+
   ## checks: just that they are a matrix & square & numeric
   if( length(dim(x)) != 2 ){
     stop("invsqrt_psd_matrix: x is not a matrix.")
@@ -391,12 +339,12 @@ invsqrt_psd_matrix <- function(x){
   if(!is.matrix(x)){
     x <- as.matrix(x)
   }
-  
+
   ## tolerance_eigen
   res <- tolerance_eigen(x, tol = 1e-13)
-  
+
   ## rebuild
   return(t(t(res$vectors) * (1/sqrt(res$values)) ) %*% t(res$vectors))
-  
+
 }
 
