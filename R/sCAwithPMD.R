@@ -34,7 +34,7 @@ sCAwithPMD <- function(
     RW = RW,
     k = dimensions,
     rdsLeft = s1,
-    rdsRight = rdsRight
+    rdsRight = s2
   )
 
   res <- gpmd.out(res.gpmd, X = X, LW = LW, RW = RW)

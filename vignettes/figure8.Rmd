@@ -1,5 +1,5 @@
 ---
-title: "Figure 8: "
+title: "Figure 8: Sparse CA: Row factor scores."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure8}
@@ -8,20 +8,75 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
 knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  dev = 'svg'
 )
 ```
 
 ```{r setup}
 library(sparseCorrespondenceAnalysis)
-library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ExPosition)
+library(PMA)
+theme_set(theme_bw())
 data("death.2019")
+I <- nrow(death.2019)
+J <- ncol(death.2019)
+color4rows <- "#4f6980"
+color4cols <- "#638b66"
 ```
 
-```{r figure, fig.height = 7, fig.width = 7}
 
+```{r sca}
+dim2get <- 2L
+rdsleft <- rep(2.319896, dim2get)
+rdsright <- rep(1.530352, dim2get) #0.5994068 
+
+ca.res <- epCA(death.2019, k = 19, graphs = FALSE)
+
+sca.res <- sCAwithPMD(
+  DATA = death.2019, 
+  dimensions = dim2get,
+  s1 = rdsleft,
+  s2 = rdsright
+)
+
+sca.map.label <- createxyLabels.gen.digit(
+  1,
+  2,
+  lambda = sca.res$eig,
+  tau = 100 * sca.res$eig / sum(ca.res$ExPosition.Data$pdq$eigs),
+  digit4tau = 2,
+  axisName = "Dimension "
+)
+```
+
+
+```{r figure, fig.height = 7, fig.width = 7}
+sca.fi.map.12 <- createFactorMap(X = sca.res$fi,
+                       col.points = color4rows, 
+                       col.labels = color4rows,
+                       col.background = NULL,
+                       col.axes = "#42376B", width.axes = 0.5,
+                       title = "SCA: row factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL, text.cex = 4)
+
+sca.fi.plot.12 <- sca.fi.map.12$zeMap_background + sca.fi.map.12$zeMap_dots + sca.fi.map.12$zeMap_text + sca.map.label + geom_path(color = color4rows) + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA))
+
+sca.fi.plot.12
 ```
 
 

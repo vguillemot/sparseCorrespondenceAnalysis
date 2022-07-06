@@ -1,5 +1,5 @@
 ---
-title: "Figure 4: "
+title: "Figure 4 - Plain CA: Column factor scores."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure4}
@@ -8,19 +8,54 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
 knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  dev = 'svg'
 )
 ```
 
 ```{r setup}
 library(sparseCorrespondenceAnalysis)
-library(pheatmap)
+library(ExPosition)
+library(ggplot2)
+theme_set(theme_bw())
 data("death.2019")
+color4cols <- "#638b66"
+```
+
+```{r CA}
+ca.res <- epCA(death.2019, k = 19, graphs = FALSE)
 ```
 
 ```{r figure, fig.height = 7, fig.width = 7}
+ca.fj.map <- createFactorMap(X = ca.res$ExPosition.Data$fj,
+                       col.points = color4cols, 
+                       col.labels = color4cols,
+                       col.background = NULL,
+                       col.axes = "#42376B", width.axes = 0.5,
+                       title = "CA: column factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL)
+
+ca.map.label <- createxyLabels.gen.digit(
+  1,
+  2,
+  lambda = ca.res$ExPosition.Data$pdq$eigs,
+  tau = ca.res$ExPosition.Data$pdq$tau,
+  digit4tau = 2,
+  axisName = "Dimension "
+)
+
+(ca.fj.plot <- ca.fj.map$zeMap_background + ca.fj.map$zeMap_dots + ca.fj.map$zeMap_text + ca.map.label + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA)))
 
 ```
 

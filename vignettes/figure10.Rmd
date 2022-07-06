@@ -1,5 +1,5 @@
 ---
-title: "Figure 10: "
+title: "Figure 10: Sparse CA: Signed contributions."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure10}
@@ -8,20 +8,105 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
 knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  dev = 'svg'
 )
 ```
 
 ```{r setup}
 library(sparseCorrespondenceAnalysis)
-library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ExPosition)
+library(PMA)
+theme_set(theme_bw())
 data("death.2019")
+I <- nrow(death.2019)
+J <- ncol(death.2019)
+color4rows <- "#4f6980"
+color4cols <- "#638b66"
 ```
 
-```{r figure, fig.height = 7, fig.width = 7}
 
+```{r sca}
+dim2get <- 2L
+rdsleft <- rep(2.319896, dim2get)
+rdsright <- rep(1.530352, dim2get) #0.5994068 
+
+ca.res <- epCA(death.2019, k = 19, graphs = FALSE)
+
+sig.contr.col1 <- setNames(ca.res$ExPosition.Data$cj[,1] *
+      sign(ca.res$ExPosition.Data$pdq$q[,1]),
+      rownames(ca.res$ExPosition.Data$cj))
+
+sig.contr.col2 <- setNames(ca.res$ExPosition.Data$cj[,2] *
+      sign(ca.res$ExPosition.Data$pdq$q[,2]),
+      rownames(ca.res$ExPosition.Data$cj))
+  
+
+sca.res <- sCAwithPMD(
+  DATA = death.2019, 
+  dimensions = dim2get,
+  s1 = rdsleft,
+  s2 = rdsright
+)
+
+sca.map.label <- createxyLabels.gen.digit(
+  1,
+  2,
+  lambda = sca.res$eig,
+  tau = 100 * sca.res$eig / sum(ca.res$ExPosition.Data$pdq$eigs),
+  digit4tau = 2,
+  axisName = "Dimension "
+)
+
+
+
+```
+
+
+```{r figure, fig.height = 7, fig.width = 7}
+sca.contr.row.plot1 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(sca.res$ci[,1] *
+      sign(sca.res$gsvd$p[,1]),
+      rownames(sca.res$ci)), 
+  threshold = 0, 
+  color4bar = rep(color4rows, I))
+
+sca.contr.row.plot2 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(sca.res$ci[,2] *
+      sign(sca.res$gsvd$p[,2]),
+      rownames(sca.res$ci)), 
+  threshold = 0,
+  color4bar = rep(color4rows, I))
+
+sca.contr.col.plot1 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(sca.res$cj[,1] *
+      sign(sca.res$gsvd$q[,1]),
+      rownames(sca.res$cj))[order(sig.contr.col1)], 
+  threshold = 0, ylim = c(-1, 0.4),
+  color4bar = rep(color4cols, J))
+
+sca.contr.col.plot2 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(sca.res$cj[,2] *
+      sign(sca.res$gsvd$q[,2]),
+      rownames(sca.res$cj))[order(sig.contr.col2)], 
+  threshold = 0, ylim = c(-0.75, 0.3),
+  color4bar = rep(color4cols, J))
+
+ggpubr::ggarrange(
+  sca.contr.row.plot1 + ggtitle("Row signed contributions", subtitle = "Dim. 1"), 
+  sca.contr.col.plot1 + ggtitle("Column signed contributions", subtitle = "Dim. 1"), 
+  sca.contr.row.plot2 + ggtitle("Row signed contributions", subtitle = "Dim. 2"), 
+  sca.contr.col.plot2 + ggtitle("Column signed contributions", subtitle = "Dim. 2"), 
+  nrow = 2, ncol = 2)
 ```
 
 

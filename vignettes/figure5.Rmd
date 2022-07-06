@@ -1,5 +1,5 @@
 ---
-title: "Figure 5: "
+title: "Figure 5 - Plain CA: Signed contributions."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure5}
@@ -8,20 +8,93 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
 knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  dev = 'svg'
 )
 ```
 
 ```{r setup}
 library(sparseCorrespondenceAnalysis)
-library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ExPosition)
+theme_set(theme_bw())
 data("death.2019")
+I <- nrow(death.2019)
+J <- ncol(death.2019)
+color4rows <- "#4f6980"
+color4cols <- "#638b66"
+```
+
+```{r CA}
+ca.res <- epCA(death.2019, k = 19, graphs = FALSE)
 ```
 
 ```{r figure, fig.height = 7, fig.width = 7}
+ca.contrib <- rbind(
+  data.frame(
+    idnum = seq_along(rownames(ca.res$ExPosition.Data$ci)),
+    ca.res$ExPosition.Data$ci *
+      sign(ca.res$ExPosition.Data$pdq$p)
+  ) %>%
+    pivot_longer(-idnum,
+                 names_to = "Dimension",
+                 values_to = "Contribution") %>%
+    mutate(Side = "row"),
+  data.frame(
+    idnum = seq_along(rownames(ca.res$ExPosition.Data$cj)),
+    ca.res$ExPosition.Data$cj *
+      sign(ca.res$ExPosition.Data$pdq$q)
+  ) %>%
+    pivot_longer(-idnum,
+                 names_to = "Dimension",
+                 values_to = "Contribution") %>%
+    mutate(Side = "col")
+)
 
+ca.contr.row.plot1 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(ca.res$ExPosition.Data$ci[,1] *
+      sign(ca.res$ExPosition.Data$pdq$p[,1]),
+      rownames(ca.res$ExPosition.Data$ci)), 
+  threshold = 0, color4bar = rep(color4rows, I))
+
+ca.contr.row.plot2 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(ca.res$ExPosition.Data$ci[,2] *
+      sign(ca.res$ExPosition.Data$pdq$p[,2]),
+      rownames(ca.res$ExPosition.Data$ci)), 
+  threshold = 0, color4bar = rep(color4rows, I))
+
+sig.contr.col1 <- setNames(ca.res$ExPosition.Data$cj[,1] *
+      sign(ca.res$ExPosition.Data$pdq$q[,1]),
+      rownames(ca.res$ExPosition.Data$cj))
+
+ca.contr.col.plot1 <- PTCA4CATA::PrettyBarPlot2(
+  sort(sig.contr.col1), 
+  threshold = 0, ylim = c(-0.85, 0.5), 
+  color4bar = rep(color4cols, J))
+
+sig.contr.col2 <- setNames(ca.res$ExPosition.Data$cj[,2] *
+      sign(ca.res$ExPosition.Data$pdq$q[,2]),
+      rownames(ca.res$ExPosition.Data$cj))
+  
+ca.contr.col.plot2 <- PTCA4CATA::PrettyBarPlot2(
+  sort(sig.contr.col2), 
+  threshold = 0, ylim = c(-0.45, 0.25), 
+  color4bar = rep(color4cols, J))
+
+ggpubr::ggarrange(
+  ca.contr.row.plot1 + ggtitle("Row signed contributions", subtitle = "Dim. 1"), 
+  ca.contr.col.plot1 + ggtitle("Column signed contributions", subtitle = "Dim. 1"), 
+  ca.contr.row.plot2 + ggtitle("Row signed contributions", subtitle = "Dim. 2"), 
+  ca.contr.col.plot2 + ggtitle("Column signed contributions", subtitle = "Dim. 2"), 
+  nrow = 2, ncol = 2)
 ```
 
 
