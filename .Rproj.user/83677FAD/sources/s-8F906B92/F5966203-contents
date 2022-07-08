@@ -1,0 +1,333 @@
+#####
+## Script pour vérifier les couleurs des noeuds. Si on a bien bleu si poids<0 et rouge si poids>0.
+#####
+
+source("projL1L2.R")
+library(dplyr)
+library(readr)
+library(igraph)
+library(RGCCA)
+library(RColorBrewer)
+library(ggplot2)
+theme_set(theme_minimal())
+
+
+sgcca_graphNet <- function(X,Y,Z, epsilon, lambda, gamma, L, M, rdsx, rdsz, iter_max) {
+  #Initialisation des poids
+  x=svd(X)
+  x=x$v[,1]
+  
+  y=svd(Y)
+  y=y$v[,1]
+  
+  z=svd(Z)
+  z=z$v[,1]
+  
+  a=x
+  b=y
+  d=z
+  
+  gradx=(1-lambda)*(t(X)%*%as.matrix(Y)%*%y + t(X)%*%as.matrix(Z)%*%z) +lambda*(gamma*2*L%*%x)
+  x=projL1L2(gradx, rdsx)$x
+  
+  grady=(1-lambda)*(t(Y)%*%as.matrix(X)%*%x + t(Y)%*%as.matrix(Z)%*%z)
+  if (lambda==1){ y=rep(0, ncol(Y)) }
+  else { y=grady/normL2(grady) }
+  
+  
+  gradz=(1-lambda)*(t(Z)%*%as.matrix(X)%*%x + t(Z)%*%as.matrix(Y)%*%y) +lambda*((1-gamma)*2*M%*%z)
+  z=projL1L2(gradz, rdsz)$x
+  
+  for(iter in 1:iter_max)  {
+    
+    if (normL2(a - x) < epsilon & normL2(b - y) < epsilon & normL2(d - z) < epsilon) {
+      break }
+    
+    else {
+      a=x
+      b=y
+      d=z
+      
+      gradx=(1-lambda)*(t(X)%*%as.matrix(Y)%*%y + t(X)%*%as.matrix(Z)%*%z) +lambda*(gamma*2*L%*%x)
+      x=projL1L2(gradx, rdsx)$x
+      
+      grady=(1-lambda)*(t(Y)%*%as.matrix(X)%*%x + t(Y)%*%as.matrix(Z)%*%z)
+      if (lambda==1){ y=rep(0, ncol(Y))  }
+      else { y=grady/normL2(grady) }
+      
+      gradz=(1-lambda)*(t(Z)%*%as.matrix(X)%*%x + t(Z)%*%as.matrix(Y)%*%y) +lambda*((1-gamma)*2*M%*%z)
+      z=projL1L2(gradz, rdsz)$x
+      
+    }                                  
+  }
+  return(list(x=x,y=y,z=z,iter=iter))
+}
+
+
+#Chargement et préparation des données
+load("../data/dat_20190910.RData")
+
+data=rbind(dat.train, dat.valid)
+
+rep_nonrep=data[,1]
+data=data[,-1]
+
+#On dissocie LPS de SEB
+variables=colnames(data)
+
+data1=data[grep(pattern="_LPS", x=variables)]
+data2=data[grep(pattern="_SEB", x=variables)]
+
+colnames(data1)= gsub("_.*$", "", names(data1))
+colnames(data2)= gsub("_.*$", "", names(data2))
+
+cvr_t=cvr[,-c(1,2,3,4,8,9,10)] #On ne garde que les 3 scores dans les données cliniques
+
+
+
+stri <- read_delim("../data/string_interactions_short.tsv") %>%
+  rename(node1 = "#node1")
+
+###Laplacien de data1
+el_stri <- stri %>% 
+  filter(
+    combined_score >= 0.99, 
+    node1 %in% colnames(data1) & node2 %in% colnames(data1))
+
+g <- graph_from_edgelist(as.matrix(el_stri[, 1:2]), directed = FALSE)
+L <- graph.laplacian(g, normalized =TRUE)
+plot(g, vertex.label = NA, vertex.color = NA, vertex.size = 2)
+
+#Recupération des indices des variables de L
+vec=c()
+for (i in colnames(L)){vec=c(vec,which(names(data1)==i))}
+
+data1=data1[vec]
+
+
+
+###Laplacien de data2
+el_stri <- stri %>% 
+  filter(
+    combined_score >= 0.99, 
+    node1 %in% colnames(data2) & node2 %in% colnames(data2))
+
+h <- graph_from_edgelist(as.matrix(el_stri[, 1:2]), directed = FALSE)
+M<- graph.laplacian(h, normalized =TRUE)
+plot(h, vertex.label = NA, vertex.color = NA, vertex.size = 2)
+
+#Recupération des indices des variables de M
+vecz=c()
+for (i in colnames(M)){vecz=c(vecz,which(names(data2)==i))}
+
+data2=data2[vecz]
+
+#Paramètres
+X=data1
+Y=cvr_t
+Z=data2
+epsilon=1e-10
+gamma=0.5
+lambda= 0
+rdsx=0.5*sqrt(ncol(X))
+rdsz=0.5*sqrt(ncol(Z))
+
+X=scale(X)
+Y=scale(Y)
+Z=scale(Z)
+
+
+
+########## Graphe
+# plot_graphe <- function(graphe, vec, lambda, lay) {
+#   n=vcount(graphe)
+#   w=vec[vec!=0]
+#   m=length(w)
+#   
+#   couleurs=rep("grey", n)
+#   couleurs[vec!=0] = colorRampPalette(rev(brewer.pal(9,"RdBu")))(m)#[rank(w)]
+#   nbzeros=sum(vec==0)
+#   oldpar <- par(cex.main=2.5, mar = c(0, 0, 0, 0))
+#   
+#   noeuds_isol=which(degree(graphe)==0)
+#   
+#   poids_nonnul=which(vec!=0)
+#   poids_nuls=which(vec==0)
+#   
+#   plot.igraph(g, vertex.color = couleurs,
+#                     layout = lay,
+#                     vertex.label = NA,
+#                     vertex.frame.color= "white",
+#                     vertex.size=5, vertex.label.size=0.3,
+#                     #main=sprintf("P=%i", nbzeros)
+#   )
+#   par(oldpar)
+#   return(list(paste("Nombre de noeuds:", n), paste("Nombre de noeuds à poids nul :",length(poids_nuls)), paste("Noeuds isolés:", length(noeuds_isol)),
+#               paste("Nombre de noeuds à poids non nul :", length(poids_nonnul)),
+#               paste("Nombre d'arêtes :", ecount(graphe)),
+#               paste("Degré moyen :", mean(degree(graphe))), degree(graphe)))
+#   
+# }
+
+lay=layout.fruchterman.reingold(g,niter=100)
+
+##LPS sparse
+lambda=1
+sgcc=sgcca_graphNet(X,Y,Z, epsilon, lambda, gamma, L,M, rdsx,rdsz, 100)
+vec=sgcc$x
+gr=plot_graphe(g,vec[,1],lambda, lay)
+
+nb_neg=which(vec[,1]<0)
+nb_pos=which(vec[,1]>0)
+
+
+
+
+#Graphe avec tous les noeuds LPS
+lay2=as.data.frame(lay)
+lay2$genes=colnames(X)
+
+fromto=get.data.frame(g)
+fromto$x1 <- lay2$V1[match(fromto$from, lay2$genes)]  
+fromto$y1 <- lay2$V2[match(fromto$from, lay2$genes)]
+fromto$x2 <- lay2$V1[match(fromto$to, lay2$genes)]
+fromto$y2 <- lay2$V2[match(fromto$to, lay2$genes)]
+graph=ggplot() +    
+  geom_segment(data=fromto,aes(x=x1,xend = x2, y=y1,yend = y2),colour="lightgrey") +
+  geom_point(data=lay2,aes(x=V1,y=V2, colour=vec[,1]),size=2) +
+  scale_colour_gradient2(low="darkblue", high="red", mid="white", midpoint=0.0000)+
+  labs(colour = "Poids")+
+  geom_point(data = lay2, aes(x=V1,y=V2, colour=vec[,1]),col = "black", stroke = 0.3, shape = 21, size=3)+
+  #geom_text(data=lay2,aes(x=V1,y=V2,label=V(g)$name)) + 
+  theme(panel.border =element_blank(), axis.title.x = element_blank(), 
+                   axis.title.y = element_blank(), axis.text.x = element_blank(),  
+                   axis.text.y = element_blank(), 
+                   axis.ticks = element_blank(), panel.grid.major = element_blank(),
+                   panel.grid.minor = element_blank()) 
+
+graph
+
+###Graphe sans les noeuds à poids nul  LPS!
+gene_graphesparse=names(vec[-ind,]) #ind dans le cas de lambda=0
+
+
+
+ind=which(vec[,1]==0)
+
+
+lay2=lay[-ind,]
+lay2=as.data.frame(lay2)
+lay2$genes=colnames(X[,-ind])
+
+label=c()
+for(i in names(vec[-ind,])){
+  if (i %in% gene_graphesparse)
+  {label=c(label,i)}
+  else {label=c(label, NA)}
+  
+}
+
+
+fromto=get.data.frame(g)
+fromto$x1 <- lay2$V1[match(fromto$from, lay2$genes)]  
+fromto$y1 <- lay2$V2[match(fromto$from, lay2$genes)]
+fromto$x2 <- lay2$V1[match(fromto$to, lay2$genes)]
+fromto$y2 <- lay2$V2[match(fromto$to, lay2$genes)]
+graph=ggplot() +    
+  geom_segment(data=fromto,aes(x=x1,xend = x2, y=y1,yend = y2),colour="lightgrey") +
+  geom_point(data=lay2,aes(x=V1,y=V2, colour=vec[-ind,]),size=2) +
+  scale_colour_gradient2(low="darkblue", high="red", mid="white", midpoint=0.0000)+
+  labs(colour = "Poids")+
+  geom_point(data = lay2, aes(x=V1,y=V2, colour=vec[,1]),col = "black", stroke = 0.3, shape = 21, size=3)+
+  geom_text(data=lay2,aes(x=V1,y=V2,label=label)) + 
+  theme(panel.border =element_blank(), axis.title.x = element_blank(), 
+                   axis.title.y = element_blank(), axis.text.x = element_blank(),  
+                   axis.text.y = element_blank(), 
+                   axis.ticks = element_blank(), panel.grid.major = element_blank(),
+                   panel.grid.minor = element_blank()) 
+
+graph
+
+
+
+
+
+#Graphe avec tous les noeuds SEB
+lay2=as.data.frame(lay)
+lay2$genes=colnames(Z)
+
+fromto=get.data.frame(h)
+fromto$x1 <- lay2$V1[match(fromto$from, lay2$genes)]  
+fromto$y1 <- lay2$V2[match(fromto$from, lay2$genes)]
+fromto$x2 <- lay2$V1[match(fromto$to, lay2$genes)]
+fromto$y2 <- lay2$V2[match(fromto$to, lay2$genes)]
+graph=ggplot() +    
+  geom_segment(data=fromto,aes(x=x1,xend = x2, y=y1,yend = y2),colour="lightgrey") +
+  geom_point(data=lay2,aes(x=V1,y=V2, colour=vec[,1]),size=2) +
+  scale_colour_gradient2(low="darkblue", high="red", mid="white", midpoint=0.0000)+
+  labs(colour = "Poids")+
+  geom_point(data = lay2, aes(x=V1,y=V2, colour=vec[,1]),col = "black", stroke = 0.3, shape = 21, size=3)+
+  #geom_text(data=lay2,aes(x=V1,y=V2,label=V(h)$name)) + 
+  theme(panel.border =element_blank(), axis.title.x = element_blank(), 
+                   axis.title.y = element_blank(), axis.text.x = element_blank(),  
+                   axis.text.y = element_blank(), 
+                   axis.ticks = element_blank(), panel.grid.major = element_blank(),
+                   panel.grid.minor = element_blank()) 
+
+graph
+
+###Graphe sans les noeuds à poids nul SEB!
+gene_graphesparse=names(vec[-ind,]) #ind dans le cas de lambda=0
+
+
+ind=which(vec[,1]==0)
+lay2=lay[-ind,]
+lay2=as.data.frame(lay2)
+lay2$genes=colnames(Z[,-ind])
+
+label=c()
+for(i in names(vec[-ind,])){
+  if (i %in% gene_graphesparse)
+  {label=c(label,i)}
+  else {label=c(label, NA)}
+  
+}
+
+fromto=get.data.frame(h)
+fromto$x1 <- lay2$V1[match(fromto$from, lay2$genes)]  
+fromto$y1 <- lay2$V2[match(fromto$from, lay2$genes)]
+fromto$x2 <- lay2$V1[match(fromto$to, lay2$genes)]
+fromto$y2 <- lay2$V2[match(fromto$to, lay2$genes)]
+graph=ggplot() +    
+  geom_segment(data=fromto,aes(x=x1,xend = x2, y=y1,yend = y2),colour="lightgrey") +
+  geom_point(data=lay2,aes(x=V1,y=V2, colour=vec[-ind,]),size=2) +
+  scale_colour_gradient2(low="darkblue", high="red", mid="white", midpoint=0.0000)+
+  labs(colour = "Poids")+
+  geom_point(data = lay2, aes(x=V1,y=V2, colour=vec[,1]),col = "black", stroke = 0.3, shape = 21, size=3)+
+  geom_text(data=lay2,aes(x=V1,y=V2,label=label)) + 
+  theme(panel.border =element_blank(), axis.title.x = element_blank(), 
+                   axis.title.y = element_blank(), axis.text.x = element_blank(),  
+                   axis.text.y = element_blank(), 
+                   axis.ticks = element_blank(), panel.grid.major = element_blank(),
+                   panel.grid.minor = element_blank()) 
+
+graph
+
+lay2$genes=colnames(X)
+
+fromto=get.data.frame(g)
+fromto$x1 <- lay2$V1[match(fromto$from, lay2$genes)]  
+fromto$y1 <- lay2$V2[match(fromto$from, lay2$genes)]
+fromto$x2 <- lay2$V1[match(fromto$to, lay2$genes)]  
+fromto$y2 <- lay2$V2[match(fromto$to, lay2$genes)]
+graph=ggplot() +    
+  geom_segment(data=fromto,aes(x=x1,xend = x2, y=y1,yend = y2),colour="grey") +
+  geom_point(data=lay2,aes(x=V1,y=V2),size=2,colour="skyblue") +
+  #geom_text(data=lay2,aes(x=V1,y=V2,label=colnames(X))) + 
+  theme(panel.border =element_blank(), axis.title.x = element_blank(), 
+                   axis.title.y = element_blank(), axis.text.x = element_blank(),  
+                   axis.text.y = element_blank(), 
+                   axis.ticks = element_blank(), panel.grid.major = element_blank(),
+                   panel.grid.minor = element_blank())
+
+graph

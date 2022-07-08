@@ -1,0 +1,26 @@
+{
+    "id": "E84C1852",
+    "path": "~/git/sparseCorrespondenceAnalysis/R/sCAwithPMD.R",
+    "project_path": "R/sCAwithPMD.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1656486314979.0,
+    "source_on_save": false,
+    "relative_order": 9,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "46,10",
+        "scrollLine": "39"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1657111281,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1657111281071,
+    "read_only": false,
+    "read_only_alternatives": []
+}

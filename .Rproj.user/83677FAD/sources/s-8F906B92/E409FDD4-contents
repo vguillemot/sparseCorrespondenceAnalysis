@@ -1,0 +1,687 @@
+---
+title: "Applying sparse CA to the 'causes of death in the US' dataset"
+author: "Vincent Guillemot"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output:
+  rmdformats::downcute:
+    highlight: kate
+    df_print: paged
+    code_folding: hide
+  pdf_document: default
+always_allow_html: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+library(ExPosition)
+library(FactoMineR)
+library(ggplot2)
+library(ggrepel)
+library(magrittr)
+library(PMA)
+library(PTCA4CATA)
+library(tidyverse)
+library(data4PCCAR)
+library(pheatmap)
+library(RColorBrewer)
+
+# source("../functions/PlotFactor.R")
+source("../functions/plot.sca.results.R")
+source("../functions/createxyLabels.gen.digit.R")
+source("../functions/createLabel.gen.digit.R")
+source("../functions/plot.smca.results.R")
+source("../functions/PlotMyScree.R")
+source("../functions/PlotMyPseudoScree.R")
+source("../functions/GPMD.R")
+source("../functions/pPMD.R")
+source("../functions/sCAwithPMD.R")
+```
+
+# Data
+
+```{r read}
+# read data =================
+data.dir <- ("../01_data/")
+load(paste0(data.dir, "death.2019.rda"))
+death.2019 <- t(as.matrix(death.2019))
+I <- nrow(death.2019)
+J <- ncol(death.2019)
+color4rows <- ggthemes::tableau_color_pal(palette = "Miller Stone")(10)[1] # "#E08214"
+color4cols <- ggthemes::tableau_color_pal(palette = "Miller Stone")(10)[4] #"#2166AC"
+```
+
+
+## Heatmaps of the data.
+
+```{r heatmaps, fig.height = 7, fig.width = 7}
+Deucli <- dist(t(death.2019))
+Deucli_log <- dist(t(log10(death.2019 + 1)))
+Dchisq <- as.dist(chi2Dist(t(death.2019))$D)
+
+X <- death.2019
+N <- sum(X)
+Z <- X / N
+rvec <- rowSums(Z)
+cvec <- colSums(Z)
+Drm12 <- diag(1/sqrt(rvec))
+Dcm12 <- diag(1/sqrt(cvec))
+
+resi1 <- log10(chisq.test(death.2019)$residuals^2)
+resi2 <- log10((Drm12 %*% (Z - rvec %*% t(cvec)) %*% Dcm12)^2)
+dimnames(resi2) <- dimnames(resi1)
+
+outfig1A <- pheatmap(log10(death.2019 + 1), cluster_rows = FALSE, cluster_cols = TRUE, clustering_distance_cols = Deucli_log, border_color = "white", color = colorRampPalette(c("white", "orchid3", "mediumorchid4"))(50), clustering_method = "ward.D2")
+
+# outfig1B <- pheatmap::pheatmap(resi1, clustering_distance_cols = Deucli_log, cluster_rows = FALSE, cluster_cols = TRUE, border_color = "white", clustering_method = "ward.D2")
+outfig1B <- pheatmap::pheatmap(resi2, clustering_distance_cols = Deucli_log, cluster_rows = FALSE, cluster_cols = TRUE, border_color = "white", clustering_method = "ward.D2")
+```
+
+```{r test, eval = FALSE}
+X <- death.2019
+N <- sum(X)
+Z <- X / N
+rvec <- rowSums(X)
+cvec <- colSums(X)
+Drm12 <- diag(1/sqrt(rvec))
+Dcm12 <- diag(1/sqrt(cvec))
+
+
+plot(chisq.test(death.2019)$residuals, )
+```
+
+
+# CA {.tabset}
+
+```{r ca, cache = TRUE}
+ca.res <- epCA(death.2019, k = 19, graphs = FALSE)
+```
+
+```{r check sparse CA versus epCA, eval = FALSE}
+theme_set(theme_bw())
+# normL2 <- function(x) sqrt(sum(x^2))
+# Check that sparseCA
+ca.res.test <- sCAwithPMD(DATA = death.2019, components = 18L, rdsLeft = rep(0.5 * sqrt(I), 18L), rdsRight = rep(0.5 * sqrt(J), 19L))
+
+Fi <-  ca.res.test$fi
+ContrBis <- diag(1 / (ca.res.test$gsvd$LW) ) %*% Fi^2 
+ContrBis <- ContrBis %*% diag(1 / ca.res.test$eig)
+# ContrBis <- ContrBis %*% diag(1/apply(ContrBis, 2, normL2))
+# colSums(ContrBis)
+Contr <- ca.res.test$ci
+
+nbDim <- 2
+compardat <- tibble(
+  epCA = as.vector(ca.res$ExPosition.Data$ci[, 1:nbDim]),
+  "SCA with U2" = as.vector(ca.res.test$ci[, 1:nbDim]),
+  "SCA with F2" = as.vector(ContrBis[, 1:nbDim])
+)
+
+colnames(compardat)[2:3] <- c(
+  attr(latex2exp::TeX("SCA with $U^2$"), "plotmath"),
+  attr(latex2exp::TeX("SCA with $F^2$"), "plotmath"))
+
+GGally::ggpairs(compardat) + 
+  theme(strip.background = element_rect(fill = NA))
+
+```
+
+
+
+## Screeplot
+
+```{r ca.scree}
+ca.eig <- data.frame(
+  eig = ca.res$ExPosition.Data$eigs, 
+  tau = 100 * ca.res$ExPosition.Data$eigs / sum(ca.res$ExPosition.Data$eigs))
+
+ca.scree.plot <- PlotMyScree(ca.eig, cex = 2, lwd = 0.5)+ theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, fill = NA, color = "#42376B"))
+
+ca.scree.plot
+```
+
+## Age Categories (rows)
+
+```{r plotCAagecat, cache = TRUE}
+ca.fi.map <- createFactorMap(X = ca.res$ExPosition.Data$fi,
+                       col.points = color4rows, 
+                       col.labels = color4rows,
+                       col.background = NULL,
+                       col.axes = "#42376B",
+                       width.axes = 0.5,
+                       title = "CA: row factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL)
+
+ca.map.label <- createxyLabels.gen.digit(
+  1,
+  2,
+  lambda = ca.res$ExPosition.Data$pdq$eigs,
+  tau = ca.res$ExPosition.Data$pdq$tau,
+  digit4tau = 2,
+  axisName = "Dimension "
+)
+
+ca.fi.plot <- ca.fi.map$zeMap_background + ca.fi.map$zeMap_dots + ca.fi.map$zeMap_text + ca.map.label + geom_path(color = color4rows) + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA))
+
+```
+
+
+## Causes of Death (columns)
+
+```{r plotCAcauseOfdeath, cache = TRUE}
+ca.fj.map <- createFactorMap(X = ca.res$ExPosition.Data$fj,
+                       col.points = color4cols, 
+                       col.labels = color4cols,
+                       col.background = NULL,
+                       col.axes = "#42376B", width.axes = 0.5,
+                       title = "CA: column factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL)
+
+ca.fj.plot <- ca.fj.map$zeMap_background + ca.fj.map$zeMap_dots + ca.fj.map$zeMap_text + ca.map.label + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA))
+
+```
+
+
+## Contributions
+
+```{r ca contributions}
+ca.contrib <- rbind(
+  data.frame(
+    idnum = seq_along(rownames(ca.res$ExPosition.Data$ci)),
+    ca.res$ExPosition.Data$ci *
+      sign(ca.res$ExPosition.Data$pdq$p)
+  ) %>%
+    pivot_longer(-idnum,
+                 names_to = "Dimension",
+                 values_to = "Contribution") %>%
+    mutate(Side = "row"),
+  data.frame(
+    idnum = seq_along(rownames(ca.res$ExPosition.Data$cj)),
+    ca.res$ExPosition.Data$cj *
+      sign(ca.res$ExPosition.Data$pdq$q)
+  ) %>%
+    pivot_longer(-idnum,
+                 names_to = "Dimension",
+                 values_to = "Contribution") %>%
+    mutate(Side = "col")
+)
+
+ca.contr.row.plot1 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(ca.res$ExPosition.Data$ci[,1] *
+      sign(ca.res$ExPosition.Data$pdq$p[,1]),
+      rownames(ca.res$ExPosition.Data$ci)), 
+  threshold = 0, color4bar = rep(color4rows, I))
+
+ca.contr.row.plot2 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(ca.res$ExPosition.Data$ci[,2] *
+      sign(ca.res$ExPosition.Data$pdq$p[,2]),
+      rownames(ca.res$ExPosition.Data$ci)), 
+  threshold = 0, color4bar = rep(color4rows, I))
+
+sig.contr.col1 <- setNames(ca.res$ExPosition.Data$cj[,1] *
+      sign(ca.res$ExPosition.Data$pdq$q[,1]),
+      rownames(ca.res$ExPosition.Data$cj))
+
+ca.contr.col.plot1 <- PTCA4CATA::PrettyBarPlot2(
+  sort(sig.contr.col1), 
+  threshold = 0, ylim = c(-0.85, 0.5), 
+  color4bar = rep(color4cols, J))
+
+sig.contr.col2 <- setNames(ca.res$ExPosition.Data$cj[,2] *
+      sign(ca.res$ExPosition.Data$pdq$q[,2]),
+      rownames(ca.res$ExPosition.Data$cj))
+  
+ca.contr.col.plot2 <- PTCA4CATA::PrettyBarPlot2(
+  sort(sig.contr.col2), 
+  threshold = 0, ylim = c(-0.45, 0.25), 
+  color4bar = rep(color4cols, J))
+
+ggpubr::ggarrange(
+  ca.contr.row.plot1 + ggtitle("Row signed contributions", subtitle = "Dim. 1"), 
+  ca.contr.col.plot1 + ggtitle("Column signed contributions", subtitle = "Dim. 1"), 
+  ca.contr.row.plot2 + ggtitle("Row signed contributions", subtitle = "Dim. 2"), 
+  ca.contr.col.plot2 + ggtitle("Column signed contributions", subtitle = "Dim. 2"), 
+  nrow = 2, ncol = 2)
+```
+
+
+
+
+# sMCA 
+
+## Fixed sparse parameters {.tabset}
+
+```{r sparse CA, cache = TRUE}
+dim2get <- 2L
+rdsleft <- rep(2.319896, dim2get)
+rdsright <- rep(1.530352, dim2get) #0.5994068 
+
+sca.res <- sCAwithPMD(
+  death.2019,
+  components = dim2get,
+  rdsLeft = rdsleft,
+  rdsRight = rdsright
+)
+
+sca.map.label <- createxyLabels.gen.digit(
+  1,
+  2,
+  lambda = sca.res$eig,
+  tau = 100 * sca.res$eig / sum(ca.res$ExPosition.Data$pdq$eigs),
+  digit4tau = 2,
+  axisName = "Dimension "
+)
+# devtools::load_all("~/git/sGSVD/")
+# devtools::load_all("~/git/SPAFAC//")
+
+# sca.res2 <- sparseCA(
+#   DATA = death.2019, 
+#   components = dim2get, 
+#   rdsLeft = rdsleft, 
+#   rdsRight = rdsright)
+```
+
+```{r sca.scree}
+sca.res.18 <- sCAwithPMD(
+    death.2019,
+    components = 18L,
+    rdsLeft = rep(2.319896, 18),
+    rdsRight = rep(1.530352, 18)
+)
+
+sca.eig <- data.frame(
+  eig = sca.res.18$eig, 
+  tau = 100 * sca.res.18$eig / sum(ca.res$ExPosition.Data$eigs))
+
+# color.sig <- rep(c("#42376B", "grey"), c(2, 16))
+# color.sig.lines <- rep(c("grey40", "grey"), c(1, 17))
+# cex <- 2
+# text.cex <- 8
+# lwd <- 0.5
+# 
+# sca.eig %>% 
+#   ggplot(aes(x = 1:length(eig), y = tau)) +
+#     geom_line(color = color.sig.lines, size = lwd) +
+#     geom_point(color = color.sig, size = cex) +
+#     scale_y_continuous(name = bquote(atop(bold(.(title)),paste('\n\n    Percentage of \nvariance explained (%)'))),
+#                        sec.axis = sec_axis(~.*(sca.eig$eig[1]/sca.eig$tau[1]), name = "Pseudo-eigenvalues")) +
+#     xlab("Dimensions") +
+#     scale_x_continuous(breaks = 1:nrow(sca.eig)) +
+#     theme(text = element_text(size = text.cex),
+#           legend.position = "none",
+#           axis.text.y.left = element_text(angle = 90),
+#           axis.text.y.right = element_text(angle = 270),
+#           panel.background = element_rect(fill = "transparent"),
+#           panel.border = element_rect(color = "black", fill = "transparent"))
+
+
+sca.scree.plot <- PlotMyPseudoScree(sca.eig, cex = 2, text.cex = 8, lwd = 0.5, color.sig = rep(c("#42376B", "grey"), c(2, 16)), color.sig.lines = rep(c("grey40", "grey"), c(1, 17))) + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, fill = NA, color = "#42376B"))
+sca.scree.plot
+```
+
+### Age Categories (rows)
+
+```{r plot sparse CA age categories, cache = TRUE}
+sca.fi.map.12 <- createFactorMap(X = sca.res$fi,
+                       col.points = color4rows, 
+                       col.labels = color4rows,
+                       col.background = NULL,
+                       col.axes = "#42376B", width.axes = 0.5,
+                       title = "SCA: row factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL, text.cex = 4)
+
+sca.fi.plot.12 <- sca.fi.map.12$zeMap_background + sca.fi.map.12$zeMap_dots + sca.fi.map.12$zeMap_text + sca.map.label + geom_path(color = color4rows) + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA))
+
+sca.fi.plot.12
+```
+
+### Causes of death (columns)
+
+```{r plot sparse CA causes of death}
+sca.fj.map.12 <- createFactorMap(X = sca.res$fj,
+                       col.points = color4cols, 
+                       col.labels = color4cols,
+                       col.background = NULL,
+                       col.axes = "#42376B", width.axes = 0.5,
+                       title = "SCA: column factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL)
+
+sca.fj.plot.12 <- sca.fj.map.12$zeMap_background + sca.fj.map.12$zeMap_dots + sca.fj.map.12$zeMap_text + sca.map.label + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA))
+
+sca.fj.plot.12
+
+
+```
+
+
+## Contributions
+
+```{r sparse ca contributions}
+sca.contr.row.plot1 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(sca.res$ci[,1] *
+      sign(sca.res$gsvd$p[,1]),
+      rownames(sca.res$ci)), 
+  threshold = 0, 
+  color4bar = rep(color4rows, I))
+
+sca.contr.row.plot2 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(sca.res$ci[,2] *
+      sign(sca.res$gsvd$p[,2]),
+      rownames(sca.res$ci)), 
+  threshold = 0,
+  color4bar = rep(color4rows, I))
+
+sca.contr.col.plot1 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(sca.res$cj[,1] *
+      sign(sca.res$gsvd$q[,1]),
+      rownames(sca.res$cj))[order(sig.contr.col1)], 
+  threshold = 0, ylim = c(-1, 0.4),
+  color4bar = rep(color4cols, J))
+
+sca.contr.col.plot2 <- PTCA4CATA::PrettyBarPlot2(
+  setNames(sca.res$cj[,2] *
+      sign(sca.res$gsvd$q[,2]),
+      rownames(sca.res$cj))[order(sig.contr.col2)], 
+  threshold = 0, ylim = c(-0.75, 0.3),
+  color4bar = rep(color4cols, J))
+
+ggpubr::ggarrange(
+  sca.contr.row.plot1 + ggtitle("Row signed contributions", subtitle = "Dim. 1"), 
+  sca.contr.col.plot1 + ggtitle("Column signed contributions", subtitle = "Dim. 1"), 
+  sca.contr.row.plot2 + ggtitle("Row signed contributions", subtitle = "Dim. 2"), 
+  sca.contr.col.plot2 + ggtitle("Column signed contributions", subtitle = "Dim. 2"), 
+  nrow = 2, ncol = 2)
+```
+
+
+## Sparsity Index {.tabset}
+
+```{r allparz, cache = TRUE, warning = FALSE, message = FALSE}
+K <- 14L
+
+parz <- expand.grid(
+  rdsleft = seq(sqrt(I), 1, length = 20),
+  rdsright = seq(sqrt(J), 1, length = 20))
+
+parz <- parz[order(rowSums(parz^2/c(I,J)), decreasing = T), ]
+
+iter <- 1
+res.sca.list <- NULL
+
+for (rds.iter in 1:nrow(parz)) {
+  # cat(sprintf("Left radius: %0.2f - Right radius: %0.2f\n", parz[rds.iter, 1], parz[rds.iter, 2]))
+  res.sca.list[[iter]] <- tryCatch(
+    sCAwithPMD(DATA = death.2019, 
+             components = K, 
+             rdsLeft = rep(parz[rds.iter, 1], K), 
+             rdsRight = rep(parz[rds.iter, 2], K)), error = function(e) NA
+    )
+  iter <- iter + 1
+}
+
+```
+
+### Compute sparsity Index
+
+We use Trendavilov's sparsity index: 
+
+\begin{align}
+  \text{SI} & =  \rone  \rfour
+\end{align}
+where
+\[
+   \rone = \frac{\displaystyle \sum_{\ell=1}^R \hat\delta_\ell^2(s_1, s_2)}{\displaystyle \sum_{\ell=1}^R \delta_\ell^2}
+\]
+
+```{r function}
+extract_si <- function(sca, si = "SI") {
+  if (class(sca) == "list") {
+    return(sca$sparsity$SI[[si]])
+  } else if (is.na(sca)) {
+    return(NA)
+  } else {
+    stop("Something is a foot!")
+  }
+}
+```
+
+
+```{r SI}
+dat.si <- data.frame(
+  parz = unname(parz), 
+  SI = unname(t(sapply(res.sca.list, extract_si, "SI"))),
+  fit = unname(t(sapply(res.sca.list, extract_si, "r1"))),
+  zeros = unname(t(sapply(res.sca.list, extract_si, "r4"))))
+
+dat.fit.zeros <- dat.si %>% 
+  tidyr::pivot_longer(
+    -c(parz.1, parz.2),
+    names_to = c(".value", "k"),
+    names_pattern = "(.*)\\.(.*)")
+
+theta <- seq(pi, 3/2*pi, length.out = 150)
+```
+
+### Draw figures of fit
+
+```{r fitzeroratioplot}
+# dimcol <- Polychrome::glasbey.colors(n = 16)[-c(1, 5)]
+# dimcol <- RColorBrewer::brewer.pal(n = 4, name = "Set2")
+# dimcol <- inlmisc::GetColors(n = 8, scheme = "discrete rainbow", reverse = TRUE)
+# dimcol <- ggthemes::tableau_color_pal(palette = "Color blind")(10)
+# dimcol <- c("#EE9A00", "#436EEE", "#A2CD5A", "#EEAEEE")
+dimcol <- c("#5fa2ce", "#FF9DA7", "#8CD17D", "#F1CE63")
+names(dimcol) <- 5:2
+# Polychrome::swatch(dimcol)
+
+dat.fit.zeros %<>% 
+  filter(k %in% c("2", "3", "4", "5"))
+
+siplot <- dat.fit.zeros %>%
+  ggplot(aes(zeros, fit)) + 
+  geom_hline(yintercept = 1, color = "#42376B", alpha = 0.6, linetype = 3) + 
+  geom_vline(xintercept = 1, color = "#42376B", alpha = 0.6, linetype = 3) + 
+  lapply(seq(0.25, 1.25, by = 0.25), 
+         function(r) annotate("path",
+                              x = 1 + r*cos(theta),
+                              y = 1 + r*sin(theta),
+                              color = "#42376B")) + 
+  lapply(seq(0.125, 1.5, by = 0.25), 
+         function(r) annotate("path",
+                              x = 1 + r*cos(theta),
+                              y = 1 + r*sin(theta),
+                              color = "#42376B", size = 0.2))  +
+  geom_abline(intercept = 0, slope = 1, color = "#42376B", alpha = 0.6, linetype = 3) +
+  geom_point(aes(color = k)) +
+  scale_color_manual(values = dimcol) +
+  theme_bw() + 
+  coord_equal(xlim = 0:1, ylim = 0:1) +
+  guides(fill = "none", size = "none") +
+  labs(x = "Zero ratio", y = "Fit ratio", color = "Number of\nDimensions",
+       size = "Sparsity\nIndex", fill = "Number of\nDimensions") + 
+  theme(
+    axis.title = element_text(color = "#42376B"),
+    axis.text = element_text(color = "#42376B"),
+    title = element_text(color = "#42376B"),
+    # axis.title = element_text(size = 8, color = "#42376B"),
+    # axis.text = element_text(size = 8, color = "#42376B"),
+    # title = element_text(size = 8, color = "#42376B"),
+    panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA),
+    # plot.margin = unit(c(0.1,0,0,0), unit = "cm"),
+    panel.grid = element_blank()) +
+  with(dat.fit.zeros[which.max(dat.fit.zeros$SI),], 
+       annotate(geom = "point", x = zeros, y = fit,
+                color = "darkorchid4", shape = 21, fill = NA)) +
+  with(dat.fit.zeros[which.max(dat.fit.zeros$SI),], 
+       annotate(geom = "segment", 
+                x = zeros + 0.15, y = fit + 0.2,
+                xend = zeros + 0.01, yend = fit + 0.01, 
+                arrow = arrow(length = unit(0.05, "inches"), type = "closed"),
+                color = "darkorchid4", size = 1)) +
+  with(dat.fit.zeros[which.max(dat.fit.zeros$SI),], 
+       annotate(geom = "label", x = zeros + 0.16, y = fit + 0.2, 
+                color = "darkorchid4", label = substring(sprintf("%.3f", SI), 2), 
+                fill = scales::alpha(colorspace::lighten(dimcol["2"], .5), 1), size = 3))
+
+siplot
+
+```
+
+Two dimensional density plot for $k = 2$
+
+
+```{r two dimensional SI plot}
+siplot2d <- dat.fit.zeros %>%
+  filter(k == 2) %>%
+  ggplot(aes(x = parz.1 / sqrt(I), y = parz.2 / sqrt(J), fill = SI)) + 
+  geom_tile() +
+  geom_point(
+      aes(x = parz.1 / sqrt(I), 
+      y = parz.2 / sqrt(J)), 
+      size = 10,
+      color = "darkgoldenrod1", 
+      shape = "*",
+      data = dat.fit.zeros %>% slice_max(SI)) +
+  coord_equal(expand = FALSE) + 
+  labs(x = "Row sparsity parameter", 
+       y = "Column sparsity parameter",
+       fill = "Sparsity\nindex") +
+  theme_minimal() +
+  scale_fill_gradient(low = "skyblue1", high = "dodgerblue4") +
+  theme(
+    axis.title = element_text(color = "#42376B"),
+    axis.text = element_text(color = "#42376B"),
+    axis.ticks = element_line(color = "#42376B"),
+    title = element_text(color = "#42376B"),
+    # axis.title = element_text(size = 8, color = "#42376B"),
+    # axis.text = element_text(size = 8, color = "#42376B"),
+    # title = element_text(size = 8, color = "#42376B"),
+    # panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA),
+    # plot.margin = unit(c(0.1,0,0,0), unit = "cm"),
+    panel.grid = element_blank())
+  
+siplot2d
+```
+
+
+
+### Optimal sparsity
+
+```{r}
+dat.fit.zeros.minus1 <- dat.fit.zeros %>% filter(k > 1)
+kopt <- as.integer(dat.fit.zeros.minus1$k[which.max(dat.fit.zeros.minus1$SI)])
+rdsleftopt <- dat.fit.zeros.minus1$parz.1[which.max(dat.fit.zeros.minus1$SI)]
+rdsrightopt <- dat.fit.zeros.minus1$parz.2[which.max(dat.fit.zeros.minus1$SI)]
+SIopt <- max(dat.fit.zeros.minus1$SI, na.rm = TRUE)
+
+kopt;rdsleftopt/sqrt(I);rdsrightopt/sqrt(J);SIopt
+```
+
+
+
+## Figure
+
+### Figure 1: representing the data
+
+```{r fig1, cache = TRUE}
+pdf("~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig1A_count_heatmap.pdf")
+print(outfig1A)
+dev.off()
+
+pdf("~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig1B_deviation_heatmap.pdf")
+print(outfig1B)
+dev.off()
+
+```
+
+### Figure 2: regular CA results
+
+```{r fig2}
+
+# fig2ABCscree <- ca.scree.plot
+fig2Arowmap <- ca.fi.plot
+fig2Bcolmap <- ca.fj.plot
+fig2Ccontributions <- ggpubr::ggarrange(
+  ca.contr.row.plot1 + ggtitle("Row signed contributions", subtitle = "Dim. 1"), 
+  ca.contr.col.plot1 + ggtitle("Column signed contributions", subtitle = "Dim. 1"), 
+  ca.contr.row.plot2 + ggtitle("Row signed contributions", subtitle = "Dim. 2"), 
+  ca.contr.col.plot2 + ggtitle("Column signed contributions", subtitle = "Dim. 2"), 
+  nrow = 2, ncol = 2)
+
+# ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig2A_CA_scree.pdf", plot = fig2Ascree, width = 3.5, height = 3.5)
+# ggsave(filename = "fig2B_CA_contributions.pdf", plot = fig2Bcontributions, width = 11, height = 11)
+ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig2A_CA_rowmap.pdf", plot = fig2Arowmap)
+ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig2B_CA_colmap.pdf", plot = fig2Bcolmap)
+ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig2C_CA_contributions.pdf", plot = fig2Ccontributions, width = 7, height = 7)
+
+```
+
+### Figure 3: Sparsity Index
+
+```{r fig3, cache = TRUE}
+ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig3A_SI_map.pdf", plot = siplot2d, width = 4.5, height = 4.5)
+ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig3B_fit_to_ratio.pdf", plot = siplot, width = 4.5, height = 4.5)
+```
+
+### Figure 4
+
+```{r fig4}
+
+# fig4ABCscree <- sca.scree.plot
+fig4Arowmap <- sca.fi.plot.12
+fig4Bcolmap <- sca.fj.plot.12
+fig4Ccontributions <- ggpubr::ggarrange(
+  sca.contr.row.plot1 + ggtitle("Row signed contributions", subtitle = "Dim. 1"), 
+  sca.contr.col.plot1 + ggtitle("Column signed contributions", subtitle = "Dim. 1"),
+  sca.contr.row.plot2 + ggtitle("Row signed contributions", subtitle = "Dim. 2"), 
+  sca.contr.col.plot2 + ggtitle("Column signed contributions", subtitle = "Dim. 2"), 
+  nrow = 2, ncol = 2)
+
+# ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig4A_SCA_scree.pdf", plot = fig4Ascree, width = 3.5, height = 3.5)
+ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig4A_SCA_rowmap.pdf", plot = fig4Arowmap)
+ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig4B_SCA_colmap.pdf", plot = fig4Bcolmap)
+ggsave(filename = "~/Dropbox/Applications/ShareLaTeX/Sparse CA for Simona Balbi/figures/fig4C_SCA_contributions.pdf", plot = fig4Ccontributions, width = 7, height = 7)
+
+```
+
+
+
+
+
+```{r old version of the figure, eval = FALSE, cache = TRUE}
+# png(filename="Figure-SCA(new).png", width = 260, height = 210, units = "mm", bg = "white",res = 600)
+pdf(file = "Figure-pPMD_20220605.pdf", width = 9, height = 6)
+gridExtra::grid.arrange(grobs = list(scree.plot, siplot, 
+                                     ca.fi.plot, sca.fi.plot.12,
+                                     ca.fj.plot, sca.fj.plot.12),
+                        widths = c(0.35, 0.35),
+                        heights = c(0.26, 0.37, 0.37),
+                        layout_matrix = rbind(c(1,2),
+                                              c(3,4),
+                                              c(5,6))
+)
+dev.off()
+```
+

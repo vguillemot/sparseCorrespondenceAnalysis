@@ -1,0 +1,26 @@
+{
+    "id": "C90D4723",
+    "path": "~/git/sparseCorrespondenceAnalysis/vignettes/figure8.Rmd",
+    "project_path": "vignettes/figure8.Rmd",
+    "type": "r_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1656525669973.0,
+    "source_on_save": false,
+    "relative_order": 14,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "19,0",
+        "scrollLine": "7"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1657280414,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1657280414303,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,26 @@
+{
+    "id": "8E1C818B",
+    "path": "~/git/sparseCorrespondenceAnalysis/R/createxyLabels.gen.digit.R",
+    "project_path": "R/createxyLabels.gen.digit.R",
+    "type": "r_source",
+    "hash": "548550286",
+    "contents": "",
+    "dirty": false,
+    "created": 1657105709107.0,
+    "source_on_save": true,
+    "relative_order": 18,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "32,9",
+        "scrollLine": "20"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1657106762,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1657106762934,
+    "read_only": false,
+    "read_only_alternatives": []
+}

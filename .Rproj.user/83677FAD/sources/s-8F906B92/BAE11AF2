@@ -1,0 +1,26 @@
+{
+    "id": "BAE11AF2",
+    "path": "~/git/sparseCorrespondenceAnalysis/R/pPMD.R",
+    "project_path": "R/pPMD.R",
+    "type": "r_source",
+    "hash": "1965254540",
+    "contents": "",
+    "dirty": false,
+    "created": 1656515506088.0,
+    "source_on_save": false,
+    "relative_order": 11,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "8,43",
+        "scrollLine": "4"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1656519982,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1656519982879,
+    "read_only": false,
+    "read_only_alternatives": []
+}
