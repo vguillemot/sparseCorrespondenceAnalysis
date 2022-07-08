@@ -1,0 +1,19 @@
+pandoc: 2.17.1.1
+pkgdown: 2.0.5
+pkgdown_sha: ~
+articles:
+  figure1: figure1.html
+  figure10: figure10.html
+  figure2: figure2.html
+  figure3: figure3.html
+  figure4: figure4.html
+  figure5: figure5.html
+  figure6: figure6.html
+  figure7: figure7.html
+  figure8: figure8.html
+  figure9: figure9.html
+last_built: 2022-07-08T21:16Z
+urls:
+  reference: https://vguillemot.github.io/sparseCorrespondenceAnalysis/reference
+  article: https://vguillemot.github.io/sparseCorrespondenceAnalysis/articles
+
