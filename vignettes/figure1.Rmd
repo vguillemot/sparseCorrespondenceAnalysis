@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(sparseCorrespondenceAnalysis)
 library(pheatmap)
-data("death.2019")
+data("death.2019") # Load data
 ```
 
 ```{r figure, fig.height = 7, fig.width = 7}
