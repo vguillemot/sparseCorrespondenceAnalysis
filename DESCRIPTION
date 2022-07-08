@@ -2,10 +2,18 @@ Package: sparseCorrespondenceAnalysis
 Title: Sparse Correspondence Analysis
 Version: 1.0
 Authors@R: 
-    c(person("Vincent", "Guillemot", , "vincent.guillemot@pasteur.fr", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-7421-0655")),
-    person("Ju-Chi", "Yu", , "psyjcy@gmail.com", role = "aut",
-           comment = c(ORCID = "0000-0002-6360-1861")))
+    c(person("Vincent", "Guillemot", , 
+        "vincent.guillemot@pasteur.fr", 
+        role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0002-7421-0655")),
+    person("Ju-Chi", "Yu", ,
+        "Ju-Chi.Yu@camh.ca", 
+        role = "aut",
+        comment = c(ORCID = "0000-0002-6360-1861")),
+    person("Hervé", "Abdi", ,
+        "herve@utdallas.edu", 
+        role = "aut",
+        comment = c(ORCID = "0000-0002-6360-1861")))
 Description: 
   This package contains the reproducible code for the paper 
   "From Plain to Sparse Correspondence Analysis:

@@ -21,42 +21,72 @@ You can install the development version of
 `sparseCorrespondenceAnalysis` from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
 devtools::install_github("vguillemot/sparseCorrespondenceAnalysis")
 ```
 
-## Example
+## Running Sparse Correspondence Analysis
 
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-# library(sparseCorrespondenceAnalysis)
-## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+First load the package and the “Cause of death” data set.
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+library(sparseCorrespondenceAnalysis)
+#> Le chargement a nécessité le package : PMA
+#> Le chargement a nécessité le package : ggplot2
+#> Le chargement a nécessité le package : ggrepel
+data("death.2019")
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
+Then apply the `sCAwithPMD` to the data:
 
-You can also embed plots, for example:
+``` r
+sca.res <- sCAwithPMD(
+  DATA = death.2019, # Contingency table
+  dimensions = 2L, # the number of dimensions
+  doublecentering = TRUE, # center the data
+  s1 = rep(0.5 * sqrt(nrow(death.2019)), 2), # Asking for a medium amount of sparsity
+  s2 = rep(0.5 * sqrt(ncol(death.2019)), 2)
+)
+```
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
+``` r
+sca.fi.map.12 <- createFactorMap(X = sca.res$fi,
+                       col.background = NULL,
+                       col.axes = "#42376B", 
+                       width.axes = 0.5,
+                       title = "SCA: row factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL, text.cex = 4)
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+sca.fi.plot.12 <- sca.fi.map.12$zeMap_background + sca.fi.map.12$zeMap_dots + sca.fi.map.12$zeMap_text + geom_path(color = "darkorchid4") + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA)) + labs(x = "Dimension 1", y = "Dimension 2")
+
+sca.fi.plot.12
+```
+
+<img src="man/figures/README-row factor map-1.svg" width="100%" />
+
+``` r
+sca.fj.map.12 <- createFactorMap(X = sca.res$fj,
+                       col.background = NULL,
+                       col.axes = "#42376B", 
+                       width.axes = 0.5,
+                       title = "SCA: row factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL, 
+                       text.cex = 4)
+
+sca.fj.plot.12 <- sca.fj.map.12$zeMap_background + sca.fj.map.12$zeMap_dots + sca.fj.map.12$zeMap_text + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA)) + labs(x = "Dimension 1", y = "Dimension 2")
+
+sca.fj.plot.12
+#> Warning: ggrepel: 8 unlabeled data points (too many overlaps). Consider
+#> increasing max.overlaps
+```
+
+<img src="man/figures/README-column factor map-1.svg" width="100%" />
