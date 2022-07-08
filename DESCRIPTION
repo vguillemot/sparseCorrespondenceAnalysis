@@ -4,13 +4,17 @@ Version: 1.0
 Authors@R: 
     c(person("Vincent", "Guillemot", , "vincent.guillemot@pasteur.fr", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7421-0655")),
-    person("Ju-Chi", "Yu", , "psyjcy@gmail.com", role = c("aut", "cre"),
+    person("Ju-Chi", "Yu", , "psyjcy@gmail.com", role = "aut",
            comment = c(ORCID = "0000-0002-6360-1861")))
 Description: 
   This package contains the reproducible code for the paper 
   "From Plain to Sparse Correspondence Analysis:
-   A Principal Component Analysis Approach". (Abdi et al., 2022)
+   A Principal Component Analysis Approach" (Abdi et al., 2022).
+   More precisely, it contains the code to reproduce all
+   the figures.
 License: MIT + file LICENSE
+Depends: R (>= 3.5.0), PMA, ggplot2, ggrepel
+Imports: dplyr, pheatmap, prettyGraphs
 Suggests: knitr, rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

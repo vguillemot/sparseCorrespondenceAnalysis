@@ -202,7 +202,7 @@ all
 the matrices/dataframe should all the have
 the  same column names
 \link[=e.g., \code{colnames()}
-equal to c("Dimension 1", "Dimension 2")]{e.g., etfCTRmHCrZcO7ox246e8bbGkUEuvxHp-2- equal to c("Dimension 1", "Dimension 2")}.
+equal to c("Dimension 1", "Dimension 2")]{e.g., jB2U5NTSJy7CWf8zaM16G05cmn6fyLsv-2- equal to c("Dimension 1", "Dimension 2")}.
 When this is not the case, some strange and cryptic
 errors may be produced
 (e.g., "cannot find Dimension").

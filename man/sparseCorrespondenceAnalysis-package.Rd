@@ -7,10 +7,22 @@
 \title{Reproducible code for the paper "From Plain to Sparse Correspondence Analysis:
 A Principal Component Analysis Approach". (Abdi et al., 2022)}
 \description{
-This package contains the reproducible code for the paper "From Plain to Sparse Correspondence Analysis: A Principal Component Analysis Approach". (Abdi et al., 2022)
+This package contains the reproducible code for the paper "From Plain to Sparse Correspondence Analysis: A Principal Component Analysis Approach" (Abdi et al., 2022). More precisely, it contains the code to reproduce all the figures.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://vguillemot.github.io/sparseCorrespondenceAnalysis/}
+}
+
 }
 \author{
 \strong{Maintainer}: Vincent Guillemot \email{vincent.guillemot@pasteur.fr} (\href{https://orcid.org/0000-0002-7421-0655}{ORCID})
+
+Authors:
+\itemize{
+  \item Ju-Chi Yu \email{psyjcy@gmail.com} (\href{https://orcid.org/0000-0002-6360-1861}{ORCID})
+}
 
 }
 \keyword{internal}

@@ -12,7 +12,7 @@
 #' age group being from 1 to 5 years old to the oldest ages group being
 #' 100 and over.
 #'
-#' @name death2019
+#' @name death.2019
 #' @docType data
 #' @references \url{https://www.cdc.gov/}
 #' @keywords data

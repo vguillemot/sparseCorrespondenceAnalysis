@@ -1,5 +1,5 @@
 ---
-title: "Figure 2 - Deviation from independence ($\\log_{10}$ transformed)."
+title: "Figure 2 - Deviation from independence (log10 transformed)."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure2}
@@ -15,7 +15,9 @@ knitr::opts_chunk$set(
   warning = FALSE,
   collapse = TRUE,
   comment = "#>",
-  dev = 'svg'
+  dev = 'svg', 
+  fig.ext = "svg"
+
 )
 ```
 

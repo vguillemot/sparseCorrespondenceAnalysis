@@ -1,5 +1,5 @@
 ---
-title: "Figure 1 - Contingency table ($\\log_{10}$ transformed)."
+title: "Figure 1 - Contingency table (log10 transformed)."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure1}
@@ -15,7 +15,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   collapse = TRUE,
   comment = "#>",
-  dev = 'svg'
+  dev = 'svg', 
+  fig.ext = "svg"
 )
 ```
 

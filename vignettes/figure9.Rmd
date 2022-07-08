@@ -15,7 +15,9 @@ knitr::opts_chunk$set(
   warning = FALSE,
   collapse = TRUE,
   comment = "#>",
-  dev = 'svg'
+  dev = 'svg', 
+  fig.ext = "svg"
+
 )
 ```
 
