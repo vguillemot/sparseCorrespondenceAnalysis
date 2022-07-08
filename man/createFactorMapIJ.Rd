@@ -150,7 +150,7 @@ color of the axes.}
 \item{width.axes}{(Default = 1.1) the width of the axes}
 
 \item{col.background}{\link[=Default =
- \code{adjustcolor('lavender', alpha.f = .2)}]{Default = l853dD5ZyKThjyNsiP8HyRlI3HExyoRm-1-}
+ \code{adjustcolor('lavender', alpha.f = .2)}]{Default = sAZmSPpSy92RVokv5nrBQ40vxOGJ9eaH-1-}
 The color of the background.}
 
 \item{nudge_x}{= 0. From \code{ggrepel},

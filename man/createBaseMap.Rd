@@ -50,7 +50,7 @@ then adding a text/dot map.
 because of the way \code{ggplot2} create graphs, all the
 the matrices/dataframe should all the have the same column names
 \link[=e.g., \code{colnames()} equal to
-\code{c("Dimension 1", "Dimension 2")}]{e.g., izOezsK3vaa2Y125UnUn7M7w0dURgiwh-2- equal to izOezsK3vaa2Y125UnUn7M7w0dURgiwh-3-}.
+\code{c("Dimension 1", "Dimension 2")}]{e.g., DEepDAY5XDzyY6K72tjuCs6moYwRuvCi-2- equal to DEepDAY5XDzyY6K72tjuCs6moYwRuvCi-3-}.
 When it is not the case, some strange and cryptic
 error may be produced
 (e.g., \code{"cannot find Dimension"}).

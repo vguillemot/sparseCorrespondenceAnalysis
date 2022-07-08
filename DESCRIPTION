@@ -1,17 +1,18 @@
 Package: sparseCorrespondenceAnalysis
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Sparse Correspondence Analysis
+Version: 1.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: This package contains the reproducible code for the paper "From Plin Correspondence Anayais.
+    c(person("Vincent", "Guillemot", , "vincent.guillemot@pasteur.fr", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-7421-0655")),
+    person("Ju-Chi", "Yu", , "psyjcy@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-6360-1861")))
+Description: 
+  This package contains the reproducible code for the paper 
+  "From Plain to Sparse Correspondence Analysis:
+   A Principal Component Analysis Approach". (Abdi et al., 2022)
 License: MIT + file LICENSE
-Suggests: 
-    knitr,
-    rmarkdown,
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
+Suggests: knitr, rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown

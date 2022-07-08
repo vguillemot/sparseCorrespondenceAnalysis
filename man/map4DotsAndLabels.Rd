@@ -117,7 +117,7 @@ create the base plot maps for CA type graphs with \code{ggplot2}
 because of the way \code{ggplot2} create graphs, all
 the matrices/dataframe should all the have the  same column names
 \link[=e.g., \code{colnames()} equal to
-\code{c("Dimension 1", "Dimension 2")}]{e.g., emGkBAwysvOG5rU2YxVKjGS6pUfqGcKj-2- equal to emGkBAwysvOG5rU2YxVKjGS6pUfqGcKj-3-}.
+\code{c("Dimension 1", "Dimension 2")}]{e.g., QxgQUpQL5rJ20zCCa7yLYuRIZ0KjJyoo-2- equal to QxgQUpQL5rJ20zCCa7yLYuRIZ0KjJyoo-3-}.
 When it is not the case, some strange and cryptic
 error may be produced
 (e.g., \code{"cannot find Dimension"}).

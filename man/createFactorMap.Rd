@@ -131,7 +131,7 @@ and \code{createBaseMap}.
 because of the way \code{ggplot2} create graphs, all
 the matrices/dataframe should all the have the  same column names
 \link[=e.g., \code{colnames()} equal to
-\code{c("Dimension 1", "Dimension 2")}]{e.g., UQSC8LKSrCFU6svFY6fG2xaeEx1Qzbag-2- equal to UQSC8LKSrCFU6svFY6fG2xaeEx1Qzbag-3-}.
+\code{c("Dimension 1", "Dimension 2")}]{e.g., 1gIDic17G5OWMyyo4ZPp9jbkQtHbiSOX-2- equal to 1gIDic17G5OWMyyo4ZPp9jbkQtHbiSOX-3-}.
 When it is not the case, some strange and cryptic
 error may be produced
 (e.g., \code{"cannot find Dimension"}).
