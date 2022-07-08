@@ -1,0 +1,166 @@
+usethis::use_vignette("figure1")
+load("data/death.2019.rda")
+death.2019 <- t(as.matrix(death.2019))
+save(death.2019, file = "data/death.2019.rda")
+library(sparseCorrespondenceAnalysis)
+dimensions
+?roxygen2::vignette_roclet()
+data("death.à2019")
+library(sparseCorrespondenceAnalysis)
+library(pheatmap)
+data("death.à2019")
+remotes::update_packages()
+install.packages(c("jmv", "jmvconnect", "jmvcore", "jmvReadWrite"))
+10*2:1
+source("~/git/sparseCorrespondenceAnalysis/R/createxyLabels.gen.digit.R")
+createxyLabels.gen.digit(lambda = 2:1, tau = 10*2:1)
+source("~/git/sparseCorrespondenceAnalysis/R/createxyLabels.gen.digit.R")
+createxyLabels.gen.digit(lambda = 2:1, tau = 10*2:1)
+library(sparseCorrespondenceAnalysis)
+source("~/git/sparseCorrespondenceAnalysis/R/createxyLabels.gen.digit.R")
+library(sparseCorrespondenceAnalysis)
+ggthemes::tableau_color_pal(palette = "Miller Stone")(10)[1]
+library(sparseCorrespondenceAnalysis)
+library(ExPosition)
+library(ggplot2)
+theme_set(theme_bw())
+data("death.2019")
+color4rows <- "#4f6980"
+ca.res <- epCA(death.2019, k = 19, graphs = FALSE)
+ca.fi.map <- createFactorMap(X = ca.res$ExPosition.Data$fi,
+col.points = color4rows,
+col.labels = color4rows,
+col.background = NULL,
+col.axes = "#42376B",
+width.axes = 0.5,
+title = "CA: row factor scores",
+alpha.axes = 0.5,
+alpha.points = 0.5,
+pch = 16,
+axis1 = 1,
+axis2 = 2,
+constraints = NULL)
+ca.map.label <- createxyLabels.gen.digit(
+1,
+2,
+lambda = ca.res$ExPosition.Data$pdq$eigs,
+tau = ca.res$ExPosition.Data$pdq$tau,
+digit4tau = 2,
+axisName = "Dimension "
+)
+ca.map.label
+(ca.fi.plot <- ca.fi.map$zeMap_background + ca.fi.map$zeMap_dots + ca.fi.map$zeMap_text + ca.map.label + geom_path(color = color4rows) + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA)))
+ca.fi.map$zeMap_background + ca.fi.map$zeMap_dots + ca.fi.map$zeMap_text + ca.map.label
+sparseCorrespondenceAnalysis:::createLabel.gen.digit
+source("~/git/sparseCorrespondenceAnalysis/R/createxyLabels.gen.digit.R")
+library(sparseCorrespondenceAnalysis)
+ggthemes::tableau_color_pal(palette = "Miller Stone")(10)[4]
+library(sparseCorrespondenceAnalysis)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ExPosition)
+theme_set(theme_bw())
+data("death.2019")
+color4rows <- "#4f6980"
+color4cols <- "#638b66"
+ca.res <- epCA(death.2019, k = 19, graphs = FALSE)
+ca.contrib <- rbind(
+data.frame(
+idnum = seq_along(rownames(ca.res$ExPosition.Data$ci)),
+ca.res$ExPosition.Data$ci *
+sign(ca.res$ExPosition.Data$pdq$p)
+) %>%
+pivot_longer(-idnum,
+names_to = "Dimension",
+values_to = "Contribution") %>%
+mutate(Side = "row"),
+data.frame(
+idnum = seq_along(rownames(ca.res$ExPosition.Data$cj)),
+ca.res$ExPosition.Data$cj *
+sign(ca.res$ExPosition.Data$pdq$q)
+) %>%
+pivot_longer(-idnum,
+names_to = "Dimension",
+values_to = "Contribution") %>%
+mutate(Side = "col")
+)
+ca.contr.row.plot1 <- PTCA4CATA::PrettyBarPlot2(
+setNames(ca.res$ExPosition.Data$ci[,1] *
+sign(ca.res$ExPosition.Data$pdq$p[,1]),
+rownames(ca.res$ExPosition.Data$ci)),
+threshold = 0, color4bar = rep(color4rows, I))
+dim2get <- 2L
+rdsleft <- rep(2.319896, dim2get)
+rdsright <- rep(1.530352, dim2get) #0.5994068
+sca.res <- sCAwithPMD(
+DATA = death.2019,
+dimensions = dim2get,
+s1 = rdsleft,
+s2 = rdsright
+)
+library(PMA)
+sca.res <- sCAwithPMD(
+DATA = death.2019,
+dimensions = dim2get,
+s1 = rdsleft,
+s2 = rdsright
+)
+library(sparseCorrespondenceAnalysis)
+detach("package:sparseCorrespondenceAnalysis", unload = TRUE)
+remove.packages("sparseCorrespondenceAnalysis")
+remotes::install_github("vguillemot/sparseCorrespondenceAnalysis", build_vignettes = TRUE)
+library(sparseCorrespondenceAnalysis)
+??person
+?person
+?usethis::use_description()
+install.packages("packageodcs")
+install.packages("packagedocs")
+remotes::install_github("hafen/packagedocs")
+devtools::install_github("hafen/lazyrmd")
+remotes::install_github("hafen/packagedocs")
+packagedocs::init_vignettes()
+library(packagedocs)
+init_vignettes()
+?init_vignettes()
+install.packages("pkgdown")
+usethis::use_pkgdown()
+pkgdown::build_site()
+usethis::use_pkgdown_github_pages()
+usethis::use_pkgdown_github_pages()
+gh_token_help()
+??gh_token_help()
+library(usethis)
+gh_token_help()
+create_github_token()
+gh_token_help()
+gitcreds::gitcreds_set()
+gh_token_help()
+usethis::use_pkgdown_github_pages()
+pkgdown::build_site()
+pkgdown::build_site()
+usethis::use_pkgdown()
+pkgdown::build_site()
+plot(0:1, 0:1, type = "n")
+text(0.5, 0.5, "MISSING")
+plot(0:1, 0:1, type = "n", axes = FALSE)
+text(0.5, 0.5, "MISSING")
+plot(0:1, 0:1, type = "n", axes = FALSE, xlab = "", ylab = "")
+text(0.5, 0.5, "MISSING")
+text(0.5, 0.5, "MISSING", cex = 10)
+text(0.5, 0.5, "MISSING", cex = 5)
+pkgdown::build_site()
+pkgdown::build_site()
+pkgdown::deploy_site_github()
+?pkgdown::deploy_site_github()
+use_pkgdown_github_pages()
+use_pkgdown_github_pages()
+?use_pkgdown_github_pages()
+pkgdown::build_site_github_pages()
+pkgdown::build_site_github_pages()
+pkgdown::build_site_github_pages()
+pkgdown::build_site_github_pages()
+pkgdown::build_site_github_pages()
+pkgdown::deploy_site_github()
+pkgdown::build_site()
+use_pkgdown_github_pages()
