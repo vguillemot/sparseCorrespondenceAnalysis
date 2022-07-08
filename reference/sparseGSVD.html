@@ -119,20 +119,20 @@ $L_1$ ball for each left vector, Default: rep(1, k)</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">5</span>, <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">GPMD</span><span class="op">(</span><span class="va">X</span>, LW <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, RW <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.5019489 0.9865299 0.9725416 0.7293631</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.8610475 1.6635284 1.6548431 0.5453667</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $u</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3] [,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    1    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0   -1    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    1    0    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]    0    0    0    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0   -1    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    0    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    1    0    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    0    0    0    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]    0   -1    0    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $v</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3] [,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0   -1    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    0   -1    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0   -1    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0   -1    0    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0    0    1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    1    0    0    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -143,56 +143,56 @@ $L_1$ ball for each left vector, Default: rep(1, k)</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 1 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $d_full</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.5019489 0.9865299 0.9725416 0.7293631</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.8610475 1.6635284 1.6548431 0.5453667</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $l_full</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.2558505 0.9732412 0.9458372 0.5319705</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.4634976 2.7673268 2.7385056 0.2974249</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $l</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.2558505 0.9732412 0.9458372 0.5319705</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.4634976 2.7673268 2.7385056 0.2974249</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $p</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3] [,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    1    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0   -1    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    1    0    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]    0    0    0    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0   -1    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    0    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    1    0    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    0    0    0    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]    0   -1    0    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $fi</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          [,1]      [,2]       [,3]      [,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.000000 0.0000000  0.0000000 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.000000 0.9865299  0.0000000 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.000000 0.0000000 -0.9725416 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 1.501949 0.0000000  0.0000000 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.000000 0.0000000  0.0000000 0.7293631</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          [,1]      [,2]      [,3]      [,4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.000000  0.000000 -1.654843 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.000000  0.000000  0.000000 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 1.861047  0.000000  0.000000 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.000000  0.000000  0.000000 0.5453667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.000000 -1.663528  0.000000 0.0000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $q</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3] [,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0   -1    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    0   -1    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0   -1    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0   -1    0    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0    0    1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    1    0    0    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $fj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          [,1]       [,2]       [,3]      [,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.000000 -0.9865299  0.0000000 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.000000  0.0000000 -0.9725416 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.000000  0.0000000  0.0000000 0.7293631</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 1.501949  0.0000000  0.0000000 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          [,1]      [,2]      [,3]      [,4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.000000  0.000000 -1.654843 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.000000 -1.663528  0.000000 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.000000  0.000000  0.000000 0.5453667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 1.861047  0.000000  0.000000 0.0000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $SI</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $SI$SI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2259438 0.2405908 0.2606716 0.2873972</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3150629 0.3516054 0.4036122 0.4162059</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $SI$SIleft</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2323993 0.2474648 0.2681193 0.2956085</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3240647 0.3616513 0.4151440 0.4280975</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $SI$SIright</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2178744 0.2319983 0.2513619 0.2771330</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3038107 0.3390481 0.3891975 0.4013414</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $SI$r1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2904992 0.3093310 0.3351492 0.3695107</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4050809 0.4520641 0.5189300 0.5351219</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $SI$r2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8 0.8 0.8 0.8</span>
@@ -235,7 +235,7 @@ $L_1$ ball for each left vector, Default: rep(1, k)</p></dd>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Vincent Guillemot, Ju-Chi Yu.</p>
+  <p></p><p>Developed by Vincent Guillemot, Ju-Chi Yu, Hervé Abdi.</p>
 </div>
 
 <div class="pkgdown-footer-right">

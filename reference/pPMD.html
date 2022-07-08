@@ -106,22 +106,22 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">5</span>, <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pPMD</span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.948728 1.457580</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.365121 1.909526</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $u</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]   -1    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    1    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]    0    1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $v</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0   -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]   -1    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    1    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $rdsLeft</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 1</span>
@@ -135,22 +135,22 @@
 <span class="r-in"><span>  rdsLeft <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  rdsRight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.150558 1.621090 1.382128</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.510287 1.991807 1.371619</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $u</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]      [,2]        [,3]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.0000000 0.9920299  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.1260054 0.0000000  0.01276039</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.0000000 0.0000000 -0.99367093</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.9920296 0.0000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.0000000 0.1260028 -0.11160309</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]      [,2]       [,3]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.0000000 0.0000000 -0.1260040</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.9920297 0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.0000000 0.1260041  0.9920297</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.1260041 0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.0000000 0.9920297  0.0000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $v</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0   -1    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0    1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]   -1    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0   -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    1    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    1    0    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $rdsLeft</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.118034 1.118034 1.118034</span>
@@ -165,7 +165,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Vincent Guillemot, Ju-Chi Yu.</p>
+  <p></p><p>Developed by Vincent Guillemot, Ju-Chi Yu, Hervé Abdi.</p>
 </div>
 
 <div class="pkgdown-footer-right">
