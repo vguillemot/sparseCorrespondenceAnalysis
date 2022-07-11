@@ -1,5 +1,5 @@
 ---
-title: "Figure 6: Fit ratio to zero ratio graph."
+title: "Figure 6 - Fit ratio to zero ratio graph."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure6}

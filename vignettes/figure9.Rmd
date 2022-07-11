@@ -1,5 +1,5 @@
 ---
-title: "Figure 9: Sparse CA: Column factor scores."
+title: "Figure 9 - Sparse CA: Column factor scores."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure9}

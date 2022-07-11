@@ -1,5 +1,5 @@
 ---
-title: "Figure 10: Sparse CA: Signed contributions."
+title: "Figure 10 - Sparse CA: Signed contributions."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{figure10}
