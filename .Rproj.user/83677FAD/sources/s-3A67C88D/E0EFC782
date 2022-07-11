@@ -1,0 +1,26 @@
+{
+    "id": "E0EFC782",
+    "path": "~/git/sparseCorrespondenceAnalysis/vignettes/figure10.Rmd",
+    "project_path": "vignettes/figure10.Rmd",
+    "type": "r_markdown",
+    "hash": "3327373134",
+    "contents": "",
+    "dirty": false,
+    "created": 1657538157051.0,
+    "source_on_save": false,
+    "relative_order": 10,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "1,19",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1657538169,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1657538169830,
+    "read_only": false,
+    "read_only_alternatives": []
+}

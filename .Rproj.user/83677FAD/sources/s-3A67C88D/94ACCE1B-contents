@@ -1,0 +1,192 @@
+---
+output: pdf_document
+fontsize: 10pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(openxlsx)
+library(FactoMineR)
+library(factoextra)
+library(ggpubr)
+```
+
+```{r}
+tab <- read.xlsx("img/Correlations loop CHD_EP_121021.xlsx")
+rownames(tab) <- tab$Echantillon
+tab$Echantillon <- NULL
+tab[] <- lapply(tab,factor)
+
+## Select variables
+active_variables_default <- c("Looping.class","Direction.looping","Coeur.lateralité","Position.ventricules.loop",
+                      "Position.ventricules","Malpo.GA","VDDI","Crosse.Ao","Veine.cave.Inf","Classification.Anatomique","hypoplasie.ventricule","hypoplasie.GV","Auricules","Retour.veineux.pulmonaire")
+
+active_individuals_default <- c("NH341","NH351","NH352","NH368","NH374","NH376","NH378","NH1017","NH1019","NH1021",
+                                "NH1034","NH1041","NH1047","NH1049","NH1056")
+
+supplementary_individuals_default <- c("NH343","NH344","NH369","NH1031","NH1038","NH1042","NH1044")
+
+tab <- tab[active_individuals_default,active_variables_default]
+rownames(tab) <- paste0("ind_",1:nrow(tab))
+
+tab <- droplevels(tab[,c("Looping.class","Direction.looping","hypoplasie.GV","hypoplasie.ventricule")] )
+
+mca <- MCA(tab, graph = FALSE)
+```
+
+# Sorties graphiques
+
+```{r}
+p1 <- fviz_mca_ind(mca, repel = TRUE, labelsize=2)
+p2 <- fviz_mca_var(mca, choice = "var.cat", repel = TRUE,labelsize=2)
+p3 <- fviz_mca_var(mca, choice = "var", repel = TRUE,labelsize=2)
+p4 <- fviz_eig(mca)
+p <- ggarrange(p1,p2, p3,p4,ncol = 2, nrow=2)
+p
+```
+
+```{r}
+fviz_mca_ind(mca, select.ind = list(cos2=0.8), repel = TRUE)
+```
+
+
+# Contributions des individus
+
+```{r}
+mca$ind$contrib[,c(1,2)]
+```
+
+# Cos2 des individus
+
+```{r}
+mca$ind$cos2[,c(1,2)]
+```
+
+# Contributions des variables
+
+```{r}
+mca$var$contrib[,c(1,2)]
+```
+
+# Cos2 des variables
+
+```{r}
+mca$var$cos2[,c(1,2)]
+```
+
+# Valeurs test 
+
+```{r}
+mca$var$v.test[,c(1,2)]
+```
+
+# Eta2
+
+```{r}
+mca$var$eta2[,c(1,2)]
+```
+
+# Autre sortie numérique utile: dimdesc()
+
+```{r}
+dimdesc(mca)$`Dim 1`
+```
+
+```{r}
+dimdesc(mca)$`Dim 2`
+```
+
+
+# Autres sorties graphiques utiles: habillage
+
+```{r fig.height=10}
+p1 <- fviz_mca_ind(mca, habillage = "Looping.class", mean.point = FALSE, repel = TRUE,labelsize=2)
+p2 <- fviz_mca_ind(mca, habillage = "Direction.looping", mean.point = FALSE, repel = TRUE,labelsize=2)
+p3 <- fviz_mca_ind(mca, habillage = "hypoplasie.GV", mean.point = FALSE, repel = TRUE,labelsize=2)
+p4 <- fviz_mca_ind(mca, habillage = "hypoplasie.ventricule", mean.point = FALSE, repel = TRUE,labelsize=2)
+p <- ggarrange(p1,p2, p3,p4,ncol = 1, nrow=4)
+p
+```
+
+
+\newpage
+
+# Objectifs
+
+On étudie les individus, les variables et les modalités.
+
+Etude des individus : deux individus sont prochez s'ils ont répondu de la même façon aux questions. On ne s'intéressera pas vraiment aux individus en tant que tels mais plutôt aux populations : y a-t-il des groupes d'individus ?
+
+Etude des variables et des modalités : les questions sont les même que pour l'ACP. Premièrement, on veut étudier les relations entre variables et les associations entre modalités. Deux modalités sont proches si elles ont souvent été prises ensemble. Deuxièmement, on recherche une ou plusieurs variable(s) synthétique(s) continue(s) pour résumer les variables qualitatives. Troisièmement, on cherche à caractériser des groupes d'individus par des modalités.
+
+Le nuage des individus montre 4 groupes d'individus particuliers. Le nuage est assez hétérogène.
+
+On utilise les individus extrêmes pour interpréter les composantes principales de l'ACM (cela est plus facile que d'utiliser directement les groupes d'individus). 
+
+* Les individus 4 et 8 caractérisent la dimension 1 (et ils sont class 1, avec une hypo Ao)
+
+* Les individus 2 et 15 pour la dimension 2 (et ils sont class 3 )
+
+* Les individus 1 et 12 pour la dimension 3 (et ils sont class 2)
+
+Rmq: commande `fviz_mca_var(mca,choice="var")`
+
+Les variables "direcrtion looping", "hypoplasie.ventricule" et "hypoplasie.GV" sont liées à la 1ere dimension. 
+La variable "Looping class" est liée aux 2 premières dimensions. La représentation des modalités va aider à mieux interpréter ces relations.
+
+La première dimension oppose "class 1", "leftward","hypo AO" et "hypo RV" à "class 4" et dans une moindre mesure "rightward", ventricule_normal", "hypo PA". Elle oppose les coeur normaux "class 4" aux "pires" (class 1).
+
+La deuxième dimension oppose "class 2" à "class 3" (on retrouve le résultat du graphe des variables où Looping class est liée aux deux). 
+
+Cette partie de l'interprétation est basée sur les sorties graphiques, elle est visuelle. Elle doit s'accompagner d'une interprétation des sorties numériques pour confirmer ce qui a été observé et éventuellement découvrir d'autres associations.
+
+Pour les individus: 
+
+Etude des contributions
+
+* On retrouve que ind_4 et 8 contribuent à l'axe 1
+
+* On retrouve que 1 2 12 et 15 contribuent à l'axe 2.
+
+Rappel: comme en ACP, on a une relation directe entre coordonées et contributions des individus. Contribution élevée sur une dimension = forte cooordonnée sur cette dimension. 
+
+Etude des cos2: 
+
+* Indiquent la corrélation au carré entre le point et l'axe : élevé, alors l'individu est collé à l'axe. 
+
+* Utile car on peut les sommer, pour filtrer les individus bien représentés/qui caractérisent les axes.
+
+Pour les variables : 
+
+Etude des contributions:
+
+* Dim 1/ class &, class 4, hypo Ao, leftward, hypo RV ont de fortes contributions sur la dimension 1, rightward dans une moindre mesure
+
+* Dim 2 : Class 2 et 3, hypo RV, leftward dans une moindre mesure et GV_normal ont de fortes contributions sur la dimension 2
+
+Etude des cos2
+
+* Indiquent la corrélation au carré entre le point et l'axe : élevé, alors la modalité est collée à l'axe. 
+
+* Utile car on peut les sommer, pour filtrer les modalités bien représentés/qui caractérisent les axes.
+
+Etude des v-test
+
+* Utile car s'interprète avec un seuil -2;2
+
+* On retrouve les mêmes résultats qu'avec les contributions, remarques pour leftward/righward ne passent pas le seuil, hypo RV et ventricule normal passent le seuil (d'où le "dans une moindre mesure")
+
+Etude des eta2:
+
+* Mesure l'association entre la variable (et non plus la modalité) et la dimension, homogène à un coefficient de corrélation au carré.  
+
+* Dimension 2 surtout consacrée à la looping class.
+
+Penser aux habillages.
+       
+Pour obtenir une description des dimensions, tapez :
+`dimdesc(mca)`
+
+La caractérisation par les modalités est similaire à la caractérisation par les variables mais permet plus de précision. Par exemple, la coordonnée de la modalité "class 1" est positive alors que celle de "class 4" est négative. Cela signifie que les individus dont la coordonnée sur l'axe 1 est positive ont tendance à être des class 1.
+
+

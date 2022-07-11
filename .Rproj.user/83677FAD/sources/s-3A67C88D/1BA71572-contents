@@ -1,0 +1,49 @@
+---
+title: "Figure 2 - Deviation from independence (log10 transformed)."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{figure2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  dev = 'svg', 
+  fig.ext = "svg"
+
+)
+```
+
+```{r setup}
+library(sparseCorrespondenceAnalysis)
+library(pheatmap)
+data("death.2019")
+```
+
+```{r figure, fig.height = 7, fig.width = 7}
+Deucli_log <- dist(t(log10(death.2019 + 1)))
+
+X <- death.2019
+N <- sum(X)
+Z <- X / N
+rvec <- rowSums(Z)
+cvec <- colSums(Z)
+Drm12 <- diag(1/sqrt(rvec))
+Dcm12 <- diag(1/sqrt(cvec))
+
+resi1 <- log10(chisq.test(death.2019)$residuals^2)
+resi2 <- log10((Drm12 %*% (Z - rvec %*% t(cvec)) %*% Dcm12)^2)
+dimnames(resi2) <- dimnames(resi1)
+
+pheatmap::pheatmap(resi2, clustering_distance_cols = Deucli_log, cluster_rows = FALSE, cluster_cols = TRUE, border_color = "white", clustering_method = "ward.D2")
+```
+
+
+

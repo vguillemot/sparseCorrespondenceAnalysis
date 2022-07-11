@@ -1,0 +1,84 @@
+---
+title: "Figure 9 - Sparse CA: Column factor scores."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{figure9}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  dev = 'svg', 
+  fig.ext = "svg"
+
+)
+```
+
+```{r setup}
+library(sparseCorrespondenceAnalysis)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ExPosition)
+library(PMA)
+theme_set(theme_bw())
+data("death.2019")
+I <- nrow(death.2019)
+J <- ncol(death.2019)
+color4rows <- "#4f6980"
+color4cols <- "#638b66"
+```
+
+
+```{r sca}
+dim2get <- 2L
+rdsleft <- rep(2.319896, dim2get)
+rdsright <- rep(1.530352, dim2get) #0.5994068 
+
+ca.res <- epCA(death.2019, k = 19, graphs = FALSE)
+
+sca.res <- sCAwithPMD(
+  DATA = death.2019, 
+  dimensions = dim2get,
+  s1 = rdsleft,
+  s2 = rdsright
+)
+
+sca.map.label <- createxyLabels.gen.digit(
+  1,
+  2,
+  lambda = sca.res$eig,
+  tau = 100 * sca.res$eig / sum(ca.res$ExPosition.Data$pdq$eigs),
+  digit4tau = 2,
+  axisName = "Dimension "
+)
+```
+
+```{r figure, fig.height = 7, fig.width = 7}
+sca.fj.map.12 <- createFactorMap(X = sca.res$fj,
+                       col.points = color4cols, 
+                       col.labels = color4cols,
+                       col.background = NULL,
+                       col.axes = "#42376B", width.axes = 0.5,
+                       title = "SCA: column factor scores",
+                       alpha.axes = 0.5,
+                       alpha.points = 0.5,
+                       pch = 16,
+                       axis1 = 1,
+                       axis2 = 2,
+                       constraints = NULL)
+
+sca.fj.plot.12 <- sca.fj.map.12$zeMap_background + sca.fj.map.12$zeMap_dots + sca.fj.map.12$zeMap_text + sca.map.label + theme(axis.title = element_text(color = "#42376B"), axis.text = element_text(color = "#42376B"), title = element_text(color = "#42376B"), panel.border = element_rect(size = 1.5, color = "#42376B", fill = NA))
+
+sca.fj.plot.12
+```
+
+
+
