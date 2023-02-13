@@ -182,7 +182,7 @@ sparseIndex <- function(res.ppmd, singularValues, tol = 1e-10) {
 
   r2 <- n0inU / (I * (1:R))
   r3 <- n0inV / (J * (1:R))
-  r4 <- (n0inU + n0inV) / ((I + J) * (1:R))
+  r4 <- (n0inU + n0inV) / ((I + J) * (1:R)^2)
   # Combine
   SI <- r1 * r4
   SIleft <- r1 * r2
