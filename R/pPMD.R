@@ -48,6 +48,7 @@ pPMD <- function(Data, k = 2L,
       sumabsu = rdsLeft[r], # rdsLeft[r]
       sumabsv = rdsRight[r], # rdsRight = rdsRight[r]
       K = 1, center = FALSE,
+      type = "standard",
       trace = FALSE))
 
     if (all(res.pmd$u == 0) | all(res.pmd$v == 0)) {
